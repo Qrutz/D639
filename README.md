@@ -80,3 +80,30 @@ Optionally, you can pass a name to customize the output:
 ```bash
 ./helloworld John
 ```
+
+## Adding New Features
+
+1. **Feature Branches:** New features are developed in separate branches (feature branches) created from the main development branch. This isolates the work on the new feature from the main codebase and ongoing development.
+
+   ```bash
+   git checkout -b feature/<feature-name>
+   ```
+
+2. **Continuous Integration (CI):** TODO
+
+3. **Code Review:** Once the feature is implemented, a code review is conducted to ensure that the code meets the project's standards
+
+4. **Merge and Deploy:** After the code review is approved, the feature branch is merged into the main development branch.
+
+### Fixing Unexpected Behavior in Existing Features
+
+1. **Issue Tracking:** Any unexpected behavior or bugs in the application are reported as issues in our [Trello kanban](https://trello.com/b/todo)
+2. **Bugfix Branches:** Similar to feature branches, we create separate branches for fixing bugs. This allows us to isolate the bug fix from the main codebase and ongoing development, prefixing the branch name with `bugfix/`.
+
+   ```bash
+   git checkout -b bugfix/<bugfix-name>
+   ```
+
+3. **Code Review:** After the bug is fixed, a code review is conducted to ensure that the fix is correct and does not introduce new issues.
+
+4. **Merge and Verification:** Once approved, the bugfix branch is merged into the main development.
