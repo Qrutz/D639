@@ -110,28 +110,13 @@ Optionally, you can pass a name to customize the output:
 
 ## Commit Message Guidelines
 
-Our commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. A commit message consists of a header and an optional body, structured as follows:
+We will follow the guides for commit messages that can be found here: https://cbea.ms/git-commit/
 
-```
-<type>: <body>
-```
+1.Separate subject from body with a blank line
+2. Limit the subject line to 50 characters
+3. Capitalize the subject line
+4. Do not end the subject line with a period
+5. Use the imperative mood in the subject line
+6. Wrap the body at 72 characters
+7. Use the body to explain what and why vs. how
 
-Where `<type>` is one of the following:
-
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation changes
-
-For example:
-
-```
-feat: Add new feature to greet users
-```
-
-```
-fix: Resolve issue with user not being greeted
-```
-
-```
-docs: Update README
-```
