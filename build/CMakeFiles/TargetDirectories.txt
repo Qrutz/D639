@@ -1,0 +1,3 @@
+/home/ubuntu/2024-group-16/build/CMakeFiles/helloworld.dir
+/home/ubuntu/2024-group-16/build/CMakeFiles/edit_cache.dir
+/home/ubuntu/2024-group-16/build/CMakeFiles/rebuild_cache.dir
