@@ -107,3 +107,31 @@ Optionally, you can pass a name to customize the output:
 3. **Code Review:** After the bug is fixed, a code review is conducted to ensure that the fix is correct and does not introduce new issues.
 
 4. **Merge and Verification:** Once approved, the bugfix branch is merged into the main development.
+
+## Commit Message Guidelines
+
+Our commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. A commit message consists of a header and an optional body, structured as follows:
+
+```
+<type>: <body>
+```
+
+Where `<type>` is one of the following:
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation changes
+
+For example:
+
+```
+feat: Add new feature to greet users
+```
+
+```
+fix: Resolve issue with user not being greeted
+```
+
+```
+docs: Update README
+```
