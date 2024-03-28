@@ -1,5 +1,6 @@
 #include <iostream>
 
+// function to print the hello world
 int main(int argc, char** argv) {
     if (argc < 2) {
         std::cout << "Hello, World!" << std::endl;
