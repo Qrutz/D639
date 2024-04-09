@@ -8,8 +8,8 @@ RUN apt-get update -y && \
     apt-get dist-upgrade -y
 
 RUN apt-get install -y --no-install-recommends \
-        cmake \
-        build-essential
+    cmake \
+    build-essential
 
 ADD . /opt/sources
 WORKDIR /opt/sources
