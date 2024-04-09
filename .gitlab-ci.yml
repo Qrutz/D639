@@ -22,9 +22,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
 
 services:
-  - name: docker:19.0.3-dind
-  - alias: docker
-
+  - name: registry.git.chalmers.se/courses/dit638/students/docker/docker:19.03.3-dind
+    alias: docker
 stages:
   - build
   - deploy
