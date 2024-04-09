@@ -22,7 +22,7 @@ RUN cd /opt/sources && \
 
 ##################################################
 # Section 2: Bundle the application.
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04 as builder
 MAINTAINER Christian Berger christian.berger@gu.se
 
 RUN apt-get update -y && \
