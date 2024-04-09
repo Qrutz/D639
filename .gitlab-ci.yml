@@ -40,7 +40,7 @@ build-and-test:
   stage: build
   script:
     - docker build -f Dockerfile .
-  only:
+  except:
     - tags
 
 
