@@ -1,10 +1,11 @@
 #include <iostream>
+#include "PrimeChecker.hpp"
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cout << "Hello, World!" << std::endl;
-    } else {
-        std::cout << "Hello, " << argv[1] << "!" << std::endl;
+    if (argc == 2) {
+        int number = std::stoi(argv[1]);
+        PrimeChecker pc;
+        std::cout << "Helsing, Alexander; " << number << " is a prime number? " << pc.isPrime(number) << std::endl;
     }
     return 0;
 }
