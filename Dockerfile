@@ -1,6 +1,6 @@
 ##################################################
 # Section 1: Build the application
-FROM ubuntu:23.0 as builder
+FROM ubuntu:22.04 as builder
 MAINTAINER Christian Berger christian.berger@gu.se
 
 RUN apt-get update -y && \
