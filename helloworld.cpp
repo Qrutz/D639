@@ -1,6 +1,8 @@
 #include <iostream>
 #include "PrimeChecker.hpp"
 
+// this code is really good fo sure i approve it really much
+
 int main(int argc, char **argv)
 {
     if (argc == 2)
