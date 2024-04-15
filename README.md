@@ -1,3 +1,6 @@
+![pipeline status](https://git.chalmers.se/courses/dit638/students/2024-group-16/badges/main/pipeline.svg)
+
+
 ## Prerequisites
 
 ### For Running with Docker
