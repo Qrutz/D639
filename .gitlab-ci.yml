@@ -26,6 +26,7 @@ services:
 
 stages:
   - build
+  - test
   - deploy
 
 # Display information before we start the build.
@@ -42,6 +43,36 @@ build-and-test:
     - docker build -f Dockerfile .
   except:
     - tags
+
+tests-and-coverage:
+  stage: test
+  image: ubuntu:22.04
+  tags:
+    - docker-build
+  except:
+    - tags
+  before_script: # install gcovr lcov and build-essential cmake etc
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get update -y
+    - apt-get upgrade -y
+    - apt-get dist-upgrade -y
+    - apt-get install -y build-essential cmake lcov gcovr --no-install-recommends
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DENABLE_COVERAGE=ON ..
+    - make
+    - make test
+    - lcov --directory . --capture --output-file coverage.info
+    - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filtering system-files
+    - lcov --list coverage.info >> coverage_summary.txt
+    # - mkdir coverage_output
+    # - genhtml coverage.info --output-directory coverage_output
+
+  artifacts:
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}
+    paths:
+      - build/coverage_summary.txt
 
 # This section describes what shall be done to deploy artefacts from the project.
 deploy-job:
