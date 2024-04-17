@@ -111,7 +111,7 @@ Optionally, you can pass a name to customize the output:
 
 4. **Merge and Verification:** Once approved, the bugfix branch is merged into the main development.
 
-## Commit Message Guidelines
+### Commit Message Guidelines
 
 We will follow the guides for commit messages that can be found here: https://cbea.ms/git-commit/
 
