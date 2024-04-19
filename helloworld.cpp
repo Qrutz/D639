@@ -1,7 +1,7 @@
 #include <iostream>
 #include "PrimeChecker.hpp"
 
-// this code is really good fo sure i approve it really much
+// Function
 
 int main(int argc, char **argv)
 {
