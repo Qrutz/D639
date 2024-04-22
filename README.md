@@ -1,6 +1,5 @@
 ![pipeline status](https://git.chalmers.se/courses/dit638/students/2024-group-16/badges/main/pipeline.svg)
 
-
 ## Prerequisites
 
 ### For Running with Docker
@@ -37,19 +36,13 @@ cd 2024-group-16
 Build the Docker image:
 
 ```bash
-docker build -t helloworld .
+docker build -f Dockerfile -t 2024-group-16 .
 ```
 
 Run the Docker container:
 
 ```bash
-docker run helloworld
-```
-
-Optionally, you can pass a name to customize the output:
-
-```bash
-docker run helloworld John
+docker run --rm -ti --net=host --ipc=host -e DISPLAY=$DISPLAY -v /tmp:/tmp 2024-group-16:latest --cid=253 --name=img --width=640 --height=480 --verbose
 ```
 
 ### For Local Development
@@ -75,13 +68,13 @@ make
 Run the project:
 
 ```bash
-./helloworld
+./main --net=host --ipc=host -e --cid=253 --name=img --width=640 --height=480 --verbose
 ```
 
-Optionally, you can pass a name to customize the output:
+Optionally, just run the bash script:
 
 ```bash
-./helloworld John
+./run_locally.sh
 ```
 
 ## Adding New Features
@@ -122,4 +115,3 @@ We will follow the guides for commit messages that can be found here: https://cb
 5. Use the imperative mood in the subject line
 6. Wrap the body at 72 characters
 7. Use the body to explain what and why vs. how
-
