@@ -25,6 +25,7 @@
 // Include the GUI and image processing header files from OpenCV
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "ColorDetection.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
@@ -51,6 +52,11 @@ int32_t main(int32_t argc, char **argv)
         const uint32_t WIDTH{static_cast<uint32_t>(std::stoi(commandlineArguments["width"]))};
         const uint32_t HEIGHT{static_cast<uint32_t>(std::stoi(commandlineArguments["height"]))};
         const bool VERBOSE{commandlineArguments.count("verbose") != 0};
+
+        ColorThreshold blueThreshold{{100, 150, 50}, {140, 255, 255}};  // HSV
+        ColorThreshold yellowThreshold{{20, 100, 100}, {30, 255, 255}}; // HSV
+
+        ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
 
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -92,6 +98,10 @@ int32_t main(int32_t argc, char **argv)
                     img = wrapped.clone();
                 }
 
+                // Use ColorDetector object to detect blue and yellow colors
+                cv::Mat blueObjects = detector.detectBlue(img);
+                cv::Mat yellowObjects = detector.detectYellow(img);
+
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
                 int64_t sampleTimePoint = cluon::time::toMicroseconds(ts.second);
@@ -124,6 +134,9 @@ int32_t main(int32_t argc, char **argv)
                 if (VERBOSE)
                 {
                     cv::imshow(sharedMemory->name().c_str(), img);
+                    cv::imshow("Blue Objects", blueObjects);     // Display blue objects
+                    cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
+
                     cv::waitKey(1);
                 }
             }
