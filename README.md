@@ -71,6 +71,12 @@ Run the project:
 ./main --net=host --ipc=host -e --cid=253 --name=img --width=640 --height=480 --verbose
 ```
 
+Optionally, just run the bash script:
+
+```bash
+./run_locally.sh
+```
+
 ## Adding New Features
 
 1. **Feature Branches:** New features are developed in separate branches (feature branches) created from the main development branch. This isolates the work on the new feature from the main codebase and ongoing development.
