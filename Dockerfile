@@ -56,6 +56,6 @@ RUN apt-get install -y --no-install-recommends \
     libopencv-imgproc3.2 
 
 WORKDIR /usr/bin
-COPY --from=builder /tmp/bin/template-opencv .
+COPY --from=builder /tmp/bin/main .
 # This is the entrypoint when starting the Docker container; hence, this Docker image is automatically starting our software on its creation
-ENTRYPOINT ["/usr/bin/template-opencv"]
+ENTRYPOINT ["/usr/bin/main"]
