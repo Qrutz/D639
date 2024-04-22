@@ -11,9 +11,9 @@ cv::Mat ColorDetector::detectColor(const cv::Mat &inputFrame, const ColorThresho
     cv::cvtColor(inputFrame, imgHSV, cv::COLOR_BGR2HSV);
     cv::Mat mask;
     cv::inRange(imgHSV, threshold.lower, threshold.upper, mask);
-    cv::Mat coloredOnly;
-    cv::bitwise_and(inputFrame, inputFrame, coloredOnly, mask);
-    return coloredOnly;
+    // cv::Mat coloredOnly;
+    // cv::bitwise_and(inputFrame, inputFrame, coloredOnly, mask);
+    return mask;
 }
 
 cv::Mat ColorDetector::detectBlue(const cv::Mat &inputFrame)

@@ -94,7 +94,7 @@ set(LIBRARIES ${LIBRARIES} ${OpenCV_LIBS})
 ################################################################################
 # Create executable.
 add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}.cpp
- ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorDetection.cpp
+ ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorDetection.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/DesiredpathPlanner.cpp 
 ) 
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 

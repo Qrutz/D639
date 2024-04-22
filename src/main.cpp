@@ -26,6 +26,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ColorDetection.hpp"
+#include "DesiredpathPlanner.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
@@ -57,6 +58,8 @@ int32_t main(int32_t argc, char **argv)
         ColorThreshold yellowThreshold{{20, 100, 100}, {30, 255, 255}}; // HSV
 
         ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
+
+        PathCalculator pathCalculator; // PathCalculator object
 
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -98,9 +101,17 @@ int32_t main(int32_t argc, char **argv)
                     img = wrapped.clone();
                 }
 
-                // Use ColorDetector object to detect blue and yellow colors
-                cv::Mat blueObjects = detector.detectBlue(img);
-                cv::Mat yellowObjects = detector.detectYellow(img);
+                cv::Mat blueMask = detector.detectBlue(img);
+                cv::Mat yellowMask = detector.detectYellow(img);
+
+                std::vector<std::vector<cv::Point>> blueContours, yellowContours;
+                cv::findContours(blueMask, blueContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+                cv::findContours(yellowMask, yellowContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+                std::vector<cv::Point2f> pathPoints = pathCalculator.calculatePathPoints(blueContours, yellowContours);
+                pathCalculator.drawPath(img, pathPoints);
+
+                // Display image with path
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
@@ -134,8 +145,8 @@ int32_t main(int32_t argc, char **argv)
                 if (VERBOSE)
                 {
                     cv::imshow(sharedMemory->name().c_str(), img);
-                    cv::imshow("Blue Objects", blueObjects);     // Display blue objects
-                    cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
+                    // cv::imshow("Blue Objects", blueObjects);     // Display blue objects
+                    // cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
 
                     cv::waitKey(1);
                 }
