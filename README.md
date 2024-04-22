@@ -68,13 +68,7 @@ make
 Run the project:
 
 ```bash
-./helloworld
-```
-
-Optionally, you can pass a name to customize the output:
-
-```bash
-./helloworld John
+./main --net=host --ipc=host -e --cid=253 --name=img --width=640 --height=480 --verbose
 ```
 
 ## Adding New Features
