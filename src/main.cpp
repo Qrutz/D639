@@ -78,14 +78,24 @@ int32_t main(int32_t argc, char **argv)
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
 
-            int iLowH = 0;
-            int iHighH = 179;
+            int iLowH = 90;
+            int iHighH = 135;
 
-            int iLowS = 0; 
+            int iLowS = 50; 
             int iHighS = 255;
 
-            int iLowV = 0;
+            int iLowV = 50;
             int iHighV = 255;
+
+            int yellowLowH = 15;
+            int yellowHighH = 30;
+
+            int yellowLowS = 50; 
+            int yellowHighS = 255;
+
+            int yellowLowV = 50;
+            int yellowHighV = 255;
+
 
             // Add trackbars for manually adjusting HSV during runtime. Makes it easier to experiment with filters and finding
             // the correct HSV values.
@@ -98,6 +108,16 @@ int32_t main(int32_t argc, char **argv)
 
             cv::createTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
             cv::createTrackbar("HighV", "Control", &iHighV, 255);
+
+            cv::namedWindow("YellowControl", cv::WINDOW_AUTOSIZE);
+            cv::createTrackbar("LowH", "YellowControl", &yellowLowH, 179); //Hue (0 - 179)
+            cv::createTrackbar("HighH", "YellowControl", &yellowHighH, 179);
+
+            cv::createTrackbar("LowS", "YellowControl", &yellowLowS, 255); //Saturation (0 - 255)
+            cv::createTrackbar("HighS", "YellowControl", &yellowHighS, 255);
+
+            cv::createTrackbar("LowV", "YellowControl", &yellowLowV, 255); //Value (0 - 255)
+            cv::createTrackbar("HighV", "YellowControl", &yellowHighV, 255);
 
 
             // Endless loop; end the program by pressing Ctrl-C.
@@ -132,7 +152,7 @@ int32_t main(int32_t argc, char **argv)
                 cv::cvtColor(croppedImg, hsvImg, CV_BGR2HSV);
                 hsvImg2 = hsvImg.clone();
                 cv::inRange(hsvImg, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), threshImg);
-                cv::inRange(hsvImg2, cv::Scalar(15, 50, 50), cv::Scalar(30, 255, 255), threshImg2);
+                cv::inRange(hsvImg2, cv::Scalar(yellowLowH, yellowLowS, yellowLowV), cv::Scalar(yellowHighH, yellowHighS, yellowHighV), threshImg2);
 
                 cv::bitwise_or(threshImg, threshImg2, finalThresh);
 
@@ -171,7 +191,7 @@ int32_t main(int32_t argc, char **argv)
                 {
 
                     //cv::imshow(sharedMemory->name().c_str(), img);
-                    cv::imshow("ResultImg", threshImg);
+                    cv::imshow("ResultImg", finalThresh);
                     cv::imshow("Blue tracking", finalOutput);
 
                     cv::waitKey(1);
