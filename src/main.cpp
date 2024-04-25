@@ -53,12 +53,6 @@ int32_t main(int32_t argc, char **argv)
         const uint32_t HEIGHT{static_cast<uint32_t>(std::stoi(commandlineArguments["height"]))};
         const bool VERBOSE{commandlineArguments.count("verbose") != 0};
 
-        ColorThreshold blueThreshold{{100, 150, 50}, {140, 255, 255}};  // HSV
-        ColorThreshold yellowThreshold{{20, 100, 100}, {30, 255, 255}}; // HSV
-
-        ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
-
-        PathCalculator pathCalculator; // PathCalculator object
 
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -105,6 +99,7 @@ int32_t main(int32_t argc, char **argv)
             cv::createTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
             cv::createTrackbar("HighV", "Control", &iHighV, 255);
 
+
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
             {
@@ -112,7 +107,10 @@ int32_t main(int32_t argc, char **argv)
                 
                 cv::Mat img;
                 cv::Mat hsvImg;    // HSV Image
+                cv::Mat hsvImg2;    // HSV Image
                 cv::Mat threshImg;   // Thresh Image
+                cv::Mat threshImg2;   // Thresh Image
+                cv::Mat finalThresh;
 
                 // Wait for a notification of a new frame.
                 sharedMemory->wait();
@@ -132,14 +130,19 @@ int32_t main(int32_t argc, char **argv)
                 // Erode makes objects smaller but fills in the holes. Dilate does the opposite, so if you combine them
                 // it will make a nice end result
                 cv::cvtColor(croppedImg, hsvImg, CV_BGR2HSV);
+                hsvImg2 = hsvImg.clone();
                 cv::inRange(hsvImg, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), threshImg);
-                cv::GaussianBlur(threshImg, threshImg, cv::Size(5, 5), 0);   //Blur Effect
-                cv::erode(threshImg, threshImg, 0);         // Erode Filter Effect
-                cv::dilate(threshImg, threshImg, 0);        // Dilate Filter Effect
+                cv::inRange(hsvImg2, cv::Scalar(15, 50, 50), cv::Scalar(30, 255, 255), threshImg2);
+
+                cv::bitwise_or(threshImg, threshImg2, finalThresh);
+
+                cv::GaussianBlur(finalThresh, finalThresh, cv::Size(5, 5), 0);   //Blur Effect
+                cv::erode(finalThresh, finalThresh, 0);         // Erode Filter Effect
+                cv::dilate(finalThresh, finalThresh, 0);        // Dilate Filter Effect
 
                 // Find contours and save them in contours.
                 std::vector<std::vector<cv::Point>> contours;
-                cv::findContours(threshImg, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+                cv::findContours(finalThresh, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
                 // Create a black image, size of original img.
                 cv::Mat contourOutput = cv::Mat::zeros(img.size(), img.type());
