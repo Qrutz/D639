@@ -1,0 +1,515 @@
+
+Start-Date: 2024-04-10  14:05:25
+Commandline: apt-get install --reinstall adduser
+Reinstall: adduser:armhf (3.118ubuntu5)
+End-Date: 2024-04-10  14:05:26
+
+Start-Date: 2024-04-10  14:05:28
+Commandline: apt-get install --reinstall apt
+Reinstall: apt:armhf (2.4.5)
+End-Date: 2024-04-10  14:05:30
+
+Start-Date: 2024-04-10  14:05:31
+Commandline: apt-get install --reinstall base-files
+Reinstall: base-files:armhf (12ubuntu4)
+End-Date: 2024-04-10  14:05:32
+
+Start-Date: 2024-04-10  14:05:34
+Commandline: apt-get install --reinstall base-passwd
+Reinstall: base-passwd:armhf (3.5.52build1)
+End-Date: 2024-04-10  14:05:35
+
+Start-Date: 2024-04-10  14:05:37
+Commandline: apt-get install --reinstall bash
+Reinstall: bash:armhf (5.1-6ubuntu1)
+End-Date: 2024-04-10  14:05:38
+
+Start-Date: 2024-04-10  14:05:39
+Commandline: apt-get install --reinstall bsdutils
+Reinstall: bsdutils:armhf (1:2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:05:40
+
+Start-Date: 2024-04-10  14:05:43
+Commandline: apt-get install --reinstall coreutils
+Reinstall: coreutils:armhf (8.32-4.1ubuntu1)
+End-Date: 2024-04-10  14:05:43
+
+Start-Date: 2024-04-10  14:05:45
+Commandline: apt-get install --reinstall dash
+Reinstall: dash:armhf (0.5.11+git20210903+057cd650a4ed-3build1)
+End-Date: 2024-04-10  14:05:46
+
+Start-Date: 2024-04-10  14:05:48
+Commandline: apt-get install --reinstall debconf
+Reinstall: debconf:armhf (1.5.79ubuntu1)
+End-Date: 2024-04-10  14:05:48
+
+Start-Date: 2024-04-10  14:05:50
+Commandline: apt-get install --reinstall debianutils
+Reinstall: debianutils:armhf (5.5-1ubuntu2)
+End-Date: 2024-04-10  14:05:51
+
+Start-Date: 2024-04-10  14:05:53
+Commandline: apt-get install --reinstall diffutils
+Reinstall: diffutils:armhf (1:3.8-0ubuntu2)
+End-Date: 2024-04-10  14:05:53
+
+Start-Date: 2024-04-10  14:05:56
+Commandline: apt-get install --reinstall dpkg
+Reinstall: dpkg:armhf (1.21.1ubuntu2)
+End-Date: 2024-04-10  14:05:57
+
+Start-Date: 2024-04-10  14:05:59
+Commandline: apt-get install --reinstall e2fsprogs
+Reinstall: e2fsprogs:armhf (1.46.5-2ubuntu1)
+End-Date: 2024-04-10  14:06:00
+
+Start-Date: 2024-04-10  14:06:02
+Commandline: apt-get install --reinstall findutils
+Reinstall: findutils:armhf (4.8.0-1ubuntu3)
+End-Date: 2024-04-10  14:06:03
+
+Start-Date: 2024-04-10  14:06:04
+Commandline: apt-get install --reinstall gcc-12-base:armhf
+Reinstall: gcc-12-base:armhf (12-20220319-1ubuntu1)
+End-Date: 2024-04-10  14:06:05
+
+Start-Date: 2024-04-10  14:06:07
+Commandline: apt-get install --reinstall gpgv
+Reinstall: gpgv:armhf (2.2.27-3ubuntu2)
+End-Date: 2024-04-10  14:06:07
+
+Start-Date: 2024-04-10  14:06:09
+Commandline: apt-get install --reinstall grep
+Reinstall: grep:armhf (3.7-1build1)
+End-Date: 2024-04-10  14:06:10
+
+Start-Date: 2024-04-10  14:06:12
+Commandline: apt-get install --reinstall gzip
+Reinstall: gzip:armhf (1.10-4ubuntu4)
+End-Date: 2024-04-10  14:06:12
+
+Start-Date: 2024-04-10  14:06:14
+Commandline: apt-get install --reinstall hostname
+Reinstall: hostname:armhf (3.23ubuntu2)
+End-Date: 2024-04-10  14:06:15
+
+Start-Date: 2024-04-10  14:06:16
+Commandline: apt-get install --reinstall init-system-helpers
+Reinstall: init-system-helpers:armhf (1.62)
+End-Date: 2024-04-10  14:06:17
+
+Start-Date: 2024-04-10  14:06:18
+Commandline: apt-get install --reinstall libacl1:armhf
+Reinstall: libacl1:armhf (2.3.1-1)
+End-Date: 2024-04-10  14:06:19
+
+Start-Date: 2024-04-10  14:06:22
+Commandline: apt-get install --reinstall libapt-pkg6.0:armhf
+Reinstall: libapt-pkg6.0:armhf (2.4.5)
+End-Date: 2024-04-10  14:06:22
+
+Start-Date: 2024-04-10  14:06:24
+Commandline: apt-get install --reinstall libattr1:armhf
+Reinstall: libattr1:armhf (1:2.5.1-1build1)
+End-Date: 2024-04-10  14:06:25
+
+Start-Date: 2024-04-10  14:06:26
+Commandline: apt-get install --reinstall libaudit-common
+Reinstall: libaudit-common:armhf (1:3.0.7-1build1)
+End-Date: 2024-04-10  14:06:27
+
+Start-Date: 2024-04-10  14:06:28
+Commandline: apt-get install --reinstall libaudit1:armhf
+Reinstall: libaudit1:armhf (1:3.0.7-1build1)
+End-Date: 2024-04-10  14:06:29
+
+Start-Date: 2024-04-10  14:06:31
+Commandline: apt-get install --reinstall libblkid1:armhf
+Reinstall: libblkid1:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:06:32
+
+Start-Date: 2024-04-10  14:06:33
+Commandline: apt-get install --reinstall libbz2-1.0:armhf
+Reinstall: libbz2-1.0:armhf (1.0.8-5build1)
+End-Date: 2024-04-10  14:06:34
+
+Start-Date: 2024-04-10  14:06:36
+Commandline: apt-get install --reinstall libc-bin
+Reinstall: libc-bin:armhf (2.35-0ubuntu3)
+End-Date: 2024-04-10  14:06:37
+
+Start-Date: 2024-04-10  14:06:40
+Commandline: apt-get install --reinstall libc6:armhf
+Reinstall: libc6:armhf (2.35-0ubuntu3)
+End-Date: 2024-04-10  14:06:42
+
+Start-Date: 2024-04-10  14:06:43
+Commandline: apt-get install --reinstall libcap-ng0:armhf
+Reinstall: libcap-ng0:armhf (0.7.9-2.2build3)
+End-Date: 2024-04-10  14:06:44
+
+Start-Date: 2024-04-10  14:06:46
+Commandline: apt-get install --reinstall libcap2:armhf
+Reinstall: libcap2:armhf (1:2.44-1build3)
+End-Date: 2024-04-10  14:06:47
+
+Start-Date: 2024-04-10  14:06:48
+Commandline: apt-get install --reinstall libcom-err2:armhf
+Reinstall: libcom-err2:armhf (1.46.5-2ubuntu1)
+End-Date: 2024-04-10  14:06:49
+
+Start-Date: 2024-04-10  14:06:50
+Commandline: apt-get install --reinstall libcrypt1:armhf
+Reinstall: libcrypt1:armhf (1:4.4.27-1)
+End-Date: 2024-04-10  14:06:51
+
+Start-Date: 2024-04-10  14:06:53
+Commandline: apt-get install --reinstall libdb5.3:armhf
+Reinstall: libdb5.3:armhf (5.3.28+dfsg1-0.8ubuntu3)
+End-Date: 2024-04-10  14:06:54
+
+Start-Date: 2024-04-10  14:06:55
+Commandline: apt-get install --reinstall libdebconfclient0:armhf
+Reinstall: libdebconfclient0:armhf (0.261ubuntu1)
+End-Date: 2024-04-10  14:06:56
+
+Start-Date: 2024-04-10  14:06:58
+Commandline: apt-get install --reinstall libext2fs2:armhf
+Reinstall: libext2fs2:armhf (1.46.5-2ubuntu1)
+End-Date: 2024-04-10  14:06:59
+
+Start-Date: 2024-04-10  14:07:00
+Commandline: apt-get install --reinstall libffi8:armhf
+Reinstall: libffi8:armhf (3.4.2-4)
+End-Date: 2024-04-10  14:07:01
+
+Start-Date: 2024-04-10  14:07:03
+Commandline: apt-get install --reinstall libgcc-s1:armhf
+Reinstall: libgcc-s1:armhf (12-20220319-1ubuntu1)
+End-Date: 2024-04-10  14:07:03
+
+Start-Date: 2024-04-10  14:07:05
+Commandline: apt-get install --reinstall libgcrypt20:armhf
+Reinstall: libgcrypt20:armhf (1.9.4-3ubuntu3)
+End-Date: 2024-04-10  14:07:06
+
+Start-Date: 2024-04-10  14:07:08
+Commandline: apt-get install --reinstall libgmp10:armhf
+Reinstall: libgmp10:armhf (2:6.2.1+dfsg-3ubuntu1)
+End-Date: 2024-04-10  14:07:09
+
+Start-Date: 2024-04-10  14:07:11
+Commandline: apt-get install --reinstall libgnutls30:armhf
+Reinstall: libgnutls30:armhf (3.7.3-4ubuntu1)
+End-Date: 2024-04-10  14:07:11
+
+Start-Date: 2024-04-10  14:07:13
+Commandline: apt-get install --reinstall libgpg-error0:armhf
+Reinstall: libgpg-error0:armhf (1.43-3)
+End-Date: 2024-04-10  14:07:14
+
+Start-Date: 2024-04-10  14:07:16
+Commandline: apt-get install --reinstall libgssapi-krb5-2:armhf
+Reinstall: libgssapi-krb5-2:armhf (1.19.2-2)
+End-Date: 2024-04-10  14:07:16
+
+Start-Date: 2024-04-10  14:07:18
+Commandline: apt-get install --reinstall libhogweed6:armhf
+Reinstall: libhogweed6:armhf (3.7.3-1build2)
+End-Date: 2024-04-10  14:07:19
+
+Start-Date: 2024-04-10  14:07:20
+Commandline: apt-get install --reinstall libidn2-0:armhf
+Reinstall: libidn2-0:armhf (2.3.2-2build1)
+End-Date: 2024-04-10  14:07:21
+
+Start-Date: 2024-04-10  14:07:23
+Commandline: apt-get install --reinstall libk5crypto3:armhf
+Reinstall: libk5crypto3:armhf (1.19.2-2)
+End-Date: 2024-04-10  14:07:24
+
+Start-Date: 2024-04-10  14:07:25
+Commandline: apt-get install --reinstall libkeyutils1:armhf
+Reinstall: libkeyutils1:armhf (1.6.1-2ubuntu3)
+End-Date: 2024-04-10  14:07:26
+
+Start-Date: 2024-04-10  14:07:28
+Commandline: apt-get install --reinstall libkrb5-3:armhf
+Reinstall: libkrb5-3:armhf (1.19.2-2)
+End-Date: 2024-04-10  14:07:28
+
+Start-Date: 2024-04-10  14:07:30
+Commandline: apt-get install --reinstall libkrb5support0:armhf
+Reinstall: libkrb5support0:armhf (1.19.2-2)
+End-Date: 2024-04-10  14:07:31
+
+Start-Date: 2024-04-10  14:07:32
+Commandline: apt-get install --reinstall liblz4-1:armhf
+Reinstall: liblz4-1:armhf (1.9.3-2build2)
+End-Date: 2024-04-10  14:07:33
+
+Start-Date: 2024-04-10  14:07:35
+Commandline: apt-get install --reinstall liblzma5:armhf
+Reinstall: liblzma5:armhf (5.2.5-2ubuntu1)
+End-Date: 2024-04-10  14:07:36
+
+Start-Date: 2024-04-10  14:07:37
+Commandline: apt-get install --reinstall libmount1:armhf
+Reinstall: libmount1:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:07:38
+
+Start-Date: 2024-04-10  14:07:40
+Commandline: apt-get install --reinstall libncurses6:armhf
+Reinstall: libncurses6:armhf (6.3-2)
+End-Date: 2024-04-10  14:07:40
+
+Start-Date: 2024-04-10  14:07:42
+Commandline: apt-get install --reinstall libncursesw6:armhf
+Reinstall: libncursesw6:armhf (6.3-2)
+End-Date: 2024-04-10  14:07:43
+
+Start-Date: 2024-04-10  14:07:44
+Commandline: apt-get install --reinstall libnettle8:armhf
+Reinstall: libnettle8:armhf (3.7.3-1build2)
+End-Date: 2024-04-10  14:07:45
+
+Start-Date: 2024-04-10  14:07:47
+Commandline: apt-get install --reinstall libnsl2:armhf
+Reinstall: libnsl2:armhf (1.3.0-2build2)
+End-Date: 2024-04-10  14:07:47
+
+Start-Date: 2024-04-10  14:07:49
+Commandline: apt-get install --reinstall libp11-kit0:armhf
+Reinstall: libp11-kit0:armhf (0.24.0-6build1)
+End-Date: 2024-04-10  14:07:50
+
+Start-Date: 2024-04-10  14:07:52
+Commandline: apt-get install --reinstall libpam-modules:armhf
+Reinstall: libpam-modules:armhf (1.4.0-11ubuntu2)
+End-Date: 2024-04-10  14:07:53
+
+Start-Date: 2024-04-10  14:07:54
+Commandline: apt-get install --reinstall libpam-modules-bin
+Reinstall: libpam-modules-bin:armhf (1.4.0-11ubuntu2)
+End-Date: 2024-04-10  14:07:55
+
+Start-Date: 2024-04-10  14:07:57
+Commandline: apt-get install --reinstall libpam-runtime
+Reinstall: libpam-runtime:armhf (1.4.0-11ubuntu2)
+End-Date: 2024-04-10  14:07:57
+
+Start-Date: 2024-04-10  14:07:59
+Commandline: apt-get install --reinstall libpam0g:armhf
+Reinstall: libpam0g:armhf (1.4.0-11ubuntu2)
+End-Date: 2024-04-10  14:08:00
+
+Start-Date: 2024-04-10  14:08:02
+Commandline: apt-get install --reinstall libpcre2-8-0:armhf
+Reinstall: libpcre2-8-0:armhf (10.39-3build1)
+End-Date: 2024-04-10  14:08:02
+
+Start-Date: 2024-04-10  14:08:04
+Commandline: apt-get install --reinstall libpcre3:armhf
+Reinstall: libpcre3:armhf (2:8.39-13build5)
+End-Date: 2024-04-10  14:08:05
+
+Start-Date: 2024-04-10  14:08:06
+Commandline: apt-get install --reinstall libprocps8:armhf
+Reinstall: libprocps8:armhf (2:3.3.17-6ubuntu2)
+End-Date: 2024-04-10  14:08:07
+
+Start-Date: 2024-04-10  14:08:09
+Commandline: apt-get install --reinstall libseccomp2:armhf
+Reinstall: libseccomp2:armhf (2.5.3-2ubuntu2)
+End-Date: 2024-04-10  14:08:09
+
+Start-Date: 2024-04-10  14:08:11
+Commandline: apt-get install --reinstall libselinux1:armhf
+Reinstall: libselinux1:armhf (3.3-1build2)
+End-Date: 2024-04-10  14:08:12
+
+Start-Date: 2024-04-10  14:08:13
+Commandline: apt-get install --reinstall libsemanage-common
+Reinstall: libsemanage-common:armhf (3.3-1build2)
+End-Date: 2024-04-10  14:08:14
+
+Start-Date: 2024-04-10  14:08:16
+Commandline: apt-get install --reinstall libsemanage2:armhf
+Reinstall: libsemanage2:armhf (3.3-1build2)
+End-Date: 2024-04-10  14:08:16
+
+Start-Date: 2024-04-10  14:08:18
+Commandline: apt-get install --reinstall libsepol2:armhf
+Reinstall: libsepol2:armhf (3.3-1build1)
+End-Date: 2024-04-10  14:08:19
+
+Start-Date: 2024-04-10  14:08:21
+Commandline: apt-get install --reinstall libsmartcols1:armhf
+Reinstall: libsmartcols1:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:08:21
+
+Start-Date: 2024-04-10  14:08:23
+Commandline: apt-get install --reinstall libss2:armhf
+Reinstall: libss2:armhf (1.46.5-2ubuntu1)
+End-Date: 2024-04-10  14:08:23
+
+Start-Date: 2024-04-10  14:08:26
+Commandline: apt-get install --reinstall libssl3:armhf
+Reinstall: libssl3:armhf (3.0.2-0ubuntu1)
+End-Date: 2024-04-10  14:08:27
+
+Start-Date: 2024-04-10  14:08:29
+Commandline: apt-get install --reinstall libstdc++6:armhf
+Reinstall: libstdc++6:armhf (12-20220319-1ubuntu1)
+End-Date: 2024-04-10  14:08:29
+
+Start-Date: 2024-04-10  14:08:31
+Commandline: apt-get install --reinstall libsystemd0:armhf
+Reinstall: libsystemd0:armhf (249.11-0ubuntu3)
+End-Date: 2024-04-10  14:08:32
+
+Start-Date: 2024-04-10  14:08:34
+Commandline: apt-get install --reinstall libtasn1-6:armhf
+Reinstall: libtasn1-6:armhf (4.18.0-4build1)
+End-Date: 2024-04-10  14:08:34
+
+Start-Date: 2024-04-10  14:08:36
+Commandline: apt-get install --reinstall libtinfo6:armhf
+Reinstall: libtinfo6:armhf (6.3-2)
+End-Date: 2024-04-10  14:08:37
+
+Start-Date: 2024-04-10  14:08:38
+Commandline: apt-get install --reinstall libtirpc-common
+Reinstall: libtirpc-common:armhf (1.3.2-2build1)
+End-Date: 2024-04-10  14:08:39
+
+Start-Date: 2024-04-10  14:08:41
+Commandline: apt-get install --reinstall libtirpc3:armhf
+Reinstall: libtirpc3:armhf (1.3.2-2build1)
+End-Date: 2024-04-10  14:08:41
+
+Start-Date: 2024-04-10  14:08:43
+Commandline: apt-get install --reinstall libudev1:armhf
+Reinstall: libudev1:armhf (249.11-0ubuntu3)
+End-Date: 2024-04-10  14:08:44
+
+Start-Date: 2024-04-10  14:08:46
+Commandline: apt-get install --reinstall libunistring2:armhf
+Reinstall: libunistring2:armhf (1.0-1)
+End-Date: 2024-04-10  14:08:46
+
+Start-Date: 2024-04-10  14:08:48
+Commandline: apt-get install --reinstall libuuid1:armhf
+Reinstall: libuuid1:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:08:49
+
+Start-Date: 2024-04-10  14:08:50
+Commandline: apt-get install --reinstall libxxhash0:armhf
+Reinstall: libxxhash0:armhf (0.8.1-1)
+End-Date: 2024-04-10  14:08:51
+
+Start-Date: 2024-04-10  14:08:53
+Commandline: apt-get install --reinstall libzstd1:armhf
+Reinstall: libzstd1:armhf (1.4.8+dfsg-3build1)
+End-Date: 2024-04-10  14:08:54
+
+Start-Date: 2024-04-10  14:08:55
+Commandline: apt-get install --reinstall login
+Reinstall: login:armhf (1:4.8.1-2ubuntu2)
+End-Date: 2024-04-10  14:08:56
+
+Start-Date: 2024-04-10  14:08:57
+Commandline: apt-get install --reinstall logsave
+Reinstall: logsave:armhf (1.46.5-2ubuntu1)
+End-Date: 2024-04-10  14:08:58
+
+Start-Date: 2024-04-10  14:09:00
+Commandline: apt-get install --reinstall lsb-base
+Reinstall: lsb-base:armhf (11.1.0ubuntu4)
+End-Date: 2024-04-10  14:09:00
+
+Start-Date: 2024-04-10  14:09:02
+Commandline: apt-get install --reinstall mawk
+Reinstall: mawk:armhf (1.3.4.20200120-3)
+End-Date: 2024-04-10  14:09:03
+
+Start-Date: 2024-04-10  14:09:04
+Commandline: apt-get install --reinstall mount
+Reinstall: mount:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:09:05
+
+Start-Date: 2024-04-10  14:09:06
+Commandline: apt-get install --reinstall ncurses-base
+Reinstall: ncurses-base:armhf (6.3-2)
+End-Date: 2024-04-10  14:09:07
+
+Start-Date: 2024-04-10  14:09:09
+Commandline: apt-get install --reinstall ncurses-bin
+Reinstall: ncurses-bin:armhf (6.3-2)
+End-Date: 2024-04-10  14:09:10
+
+Start-Date: 2024-04-10  14:09:12
+Commandline: apt-get install --reinstall passwd
+Reinstall: passwd:armhf (1:4.8.1-2ubuntu2)
+End-Date: 2024-04-10  14:09:13
+
+Start-Date: 2024-04-10  14:09:15
+Commandline: apt-get install --reinstall perl-base
+Reinstall: perl-base:armhf (5.34.0-3ubuntu1)
+End-Date: 2024-04-10  14:09:16
+
+Start-Date: 2024-04-10  14:09:18
+Commandline: apt-get install --reinstall procps
+Reinstall: procps:armhf (2:3.3.17-6ubuntu2)
+End-Date: 2024-04-10  14:09:19
+
+Start-Date: 2024-04-10  14:09:20
+Commandline: apt-get install --reinstall sed
+Reinstall: sed:armhf (4.8-1ubuntu2)
+End-Date: 2024-04-10  14:09:21
+
+Start-Date: 2024-04-10  14:09:23
+Commandline: apt-get install --reinstall sensible-utils
+Reinstall: sensible-utils:armhf (0.0.17)
+End-Date: 2024-04-10  14:09:23
+
+Start-Date: 2024-04-10  14:09:25
+Commandline: apt-get install --reinstall sysvinit-utils
+Reinstall: sysvinit-utils:armhf (3.01-1ubuntu1)
+End-Date: 2024-04-10  14:09:25
+
+Start-Date: 2024-04-10  14:09:27
+Commandline: apt-get install --reinstall tar
+Reinstall: tar:armhf (1.34+dfsg-1build3)
+End-Date: 2024-04-10  14:09:28
+
+Start-Date: 2024-04-10  14:09:30
+Commandline: apt-get install --reinstall ubuntu-keyring
+Reinstall: ubuntu-keyring:armhf (2021.03.26)
+End-Date: 2024-04-10  14:09:30
+
+Start-Date: 2024-04-10  14:09:32
+Commandline: apt-get install --reinstall usrmerge
+Reinstall: usrmerge:armhf (25ubuntu2)
+End-Date: 2024-04-10  14:09:33
+
+Start-Date: 2024-04-10  14:09:35
+Commandline: apt-get install --reinstall util-linux
+Reinstall: util-linux:armhf (2.37.2-4ubuntu3)
+End-Date: 2024-04-10  14:09:36
+
+Start-Date: 2024-04-10  14:09:37
+Commandline: apt-get install --reinstall zlib1g:armhf
+Reinstall: zlib1g:armhf (1:1.2.11.dfsg-2ubuntu9)
+End-Date: 2024-04-10  14:09:38
+
+Start-Date: 2024-04-10  14:09:46
+Commandline: apt-get --yes -oDebug::pkgDepCache::AutoInstall=yes --force-yes upgrade
+Upgrade: dpkg:armhf (1.21.1ubuntu2, 1.21.1ubuntu2.3), libsmartcols1:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), libpam-runtime:armhf (1.4.0-11ubuntu2, 1.4.0-11ubuntu2.4), coreutils:armhf (8.32-4.1ubuntu1, 8.32-4.1ubuntu1.2), libext2fs2:armhf (1.46.5-2ubuntu1, 1.46.5-2ubuntu1.1), libgssapi-krb5-2:armhf (1.19.2-2, 1.19.2-2ubuntu0.3), apt:armhf (2.4.5, 2.4.12), libtinfo6:armhf (6.3-2, 6.3-2ubuntu0.1), libtirpc-common:armhf (1.3.2-2build1, 1.3.2-2ubuntu0.1), libpcre3:armhf (2:8.39-13build5, 2:8.39-13ubuntu0.22.04.1), tar:armhf (1.34+dfsg-1build3, 1.34+dfsg-1ubuntu0.1.22.04.2), libapt-pkg6.0:armhf (2.4.5, 2.4.12), libsystemd0:armhf (249.11-0ubuntu3, 249.11-0ubuntu3.12), libmount1:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), libkrb5support0:armhf (1.19.2-2, 1.19.2-2ubuntu0.3), util-linux:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), libudev1:armhf (249.11-0ubuntu3, 249.11-0ubuntu3.12), libcom-err2:armhf (1.46.5-2ubuntu1, 1.46.5-2ubuntu1.1), libcap2:armhf (1:2.44-1build3, 1:2.44-1ubuntu0.22.04.1), libc6:armhf (2.35-0ubuntu3, 2.35-0ubuntu3.6), libssl3:armhf (3.0.2-0ubuntu1, 3.0.2-0ubuntu1.15), libkrb5-3:armhf (1.19.2-2, 1.19.2-2ubuntu0.3), libpam-modules:armhf (1.4.0-11ubuntu2, 1.4.0-11ubuntu2.4), libuuid1:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), gpgv:armhf (2.2.27-3ubuntu2, 2.2.27-3ubuntu2.1), bash:armhf (5.1-6ubuntu1, 5.1-6ubuntu1.1), base-files:armhf (12ubuntu4, 12ubuntu4.6), libk5crypto3:armhf (1.19.2-2, 1.19.2-2ubuntu0.3), ncurses-base:armhf (6.3-2, 6.3-2ubuntu0.1), gzip:armhf (1.10-4ubuntu4, 1.10-4ubuntu4.1), login:armhf (1:4.8.1-2ubuntu2, 1:4.8.1-2ubuntu2.2), libprocps8:armhf (2:3.3.17-6ubuntu2, 2:3.3.17-6ubuntu2.1), libpcre2-8-0:armhf (10.39-3build1, 10.39-3ubuntu0.1), libpam-modules-bin:armhf (1.4.0-11ubuntu2, 1.4.0-11ubuntu2.4), procps:armhf (2:3.3.17-6ubuntu2, 2:3.3.17-6ubuntu2.1), mount:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), perl-base:armhf (5.34.0-3ubuntu1, 5.34.0-3ubuntu1.3), libpam0g:armhf (1.4.0-11ubuntu2, 1.4.0-11ubuntu2.4), libc-bin:armhf (2.35-0ubuntu3, 2.35-0ubuntu3.6), libblkid1:armhf (2.37.2-4ubuntu3, 2.37.2-4ubuntu3.4), libgnutls30:armhf (3.7.3-4ubuntu1, 3.7.3-4ubuntu1.4), logsave:armhf (1.46.5-2ubuntu1, 1.46.5-2ubuntu1.1), libncursesw6:armhf (6.3-2, 6.3-2ubuntu0.1), ncurses-bin:armhf (6.3-2, 6.3-2ubuntu0.1), zlib1g:armhf (1:1.2.11.dfsg-2ubuntu9, 1:1.2.11.dfsg-2ubuntu9.2), gcc-12-base:armhf (12-20220319-1ubuntu1, 12.3.0-1ubuntu1~22.04), libtirpc3:armhf (1.3.2-2build1, 1.3.2-2ubuntu0.1), bsdutils:armhf (1:2.37.2-4ubuntu3, 1:2.37.2-4ubuntu3.4), libss2:armhf (1.46.5-2ubuntu1, 1.46.5-2ubuntu1.1), libstdc++6:armhf (12-20220319-1ubuntu1, 12.3.0-1ubuntu1~22.04), libncurses6:armhf (6.3-2, 6.3-2ubuntu0.1), e2fsprogs:armhf (1.46.5-2ubuntu1, 1.46.5-2ubuntu1.1), passwd:armhf (1:4.8.1-2ubuntu2, 1:4.8.1-2ubuntu2.2), libgcc-s1:armhf (12-20220319-1ubuntu1, 12.3.0-1ubuntu1~22.04)
+End-Date: 2024-04-10  14:09:49
+
+Start-Date: 2024-04-22  18:56:39
+Commandline: apt-get upgrade -y
+Upgrade: libc6:armhf (2.35-0ubuntu3.6, 2.35-0ubuntu3.7), libc-bin:armhf (2.35-0ubuntu3.6, 2.35-0ubuntu3.7), libgnutls30:armhf (3.7.3-4ubuntu1.4, 3.7.3-4ubuntu1.5)
+End-Date: 2024-04-22  18:56:44

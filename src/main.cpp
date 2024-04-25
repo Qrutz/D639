@@ -25,8 +25,7 @@
 // Include the GUI and image processing header files from OpenCV
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include "ColorDetection.hpp"
-#include "DesiredpathPlanner.hpp"
+#include <iostream>
 
 int32_t main(int32_t argc, char **argv)
 {
@@ -68,7 +67,7 @@ int32_t main(int32_t argc, char **argv)
             std::clog << argv[0] << ": Attached to shared memory '" << sharedMemory->name() << " (" << sharedMemory->size() << " bytes)." << std::endl;
 
             // Interface to a running OpenDaVINCI session where network messages are exchanged.
-            // The instance od4 allows you to send and receive messages.
+            // The instance od4 alblueLowS you to send and receive messages.
             cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]))};
 
             opendlv::proxy::GroundSteeringRequest gsr;
@@ -84,11 +83,36 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
+
+            int iLowH = 0;
+            int iHighH = 179;
+
+            int iLowS = 0; 
+            int iHighS = 255;
+
+            int iLowV = 0;
+            int iHighV = 255;
+
+            // Add trackbars for manually adjusting HSV during runtime. Makes it easier to experiment with filters and finding
+            // the correct HSV values.
+            cv::namedWindow("Control", cv::WINDOW_AUTOSIZE);
+            cv::createTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+            cv::createTrackbar("HighH", "Control", &iHighH, 179);
+
+            cv::createTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+            cv::createTrackbar("HighS", "Control", &iHighS, 255);
+
+            cv::createTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+            cv::createTrackbar("HighV", "Control", &iHighV, 255);
+
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
             {
                 // OpenCV data structure to hold an image.
+                
                 cv::Mat img;
+                cv::Mat hsvImg;    // HSV Image
+                cv::Mat threshImg;   // Thresh Image
 
                 // Wait for a notification of a new frame.
                 sharedMemory->wait();
@@ -100,53 +124,52 @@ int32_t main(int32_t argc, char **argv)
                     cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
                     img = wrapped.clone();
                 }
+                // Crop bottom half. Only bottom 50% part will be used for processing and contour tracking.
+                cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
+                cv::Mat croppedImg = img(roi);
 
-                cv::Mat blueMask = detector.detectBlue(img);
-                cv::Mat yellowMask = detector.detectYellow(img);
+                // inRange filters out blue colors. Use gaussian blur to smooth out image, and morphological operations
+                // Erode makes objects smaller but fills in the holes. Dilate does the opposite, so if you combine them
+                // it will make a nice end result
+                cv::cvtColor(croppedImg, hsvImg, CV_BGR2HSV);
+                cv::inRange(hsvImg, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), threshImg);
+                cv::GaussianBlur(threshImg, threshImg, cv::Size(5, 5), 0);   //Blur Effect
+                cv::erode(threshImg, threshImg, 0);         // Erode Filter Effect
+                cv::dilate(threshImg, threshImg, 0);        // Dilate Filter Effect
 
-                std::vector<std::vector<cv::Point>> blueContours, yellowContours;
-                cv::findContours(blueMask, blueContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-                cv::findContours(yellowMask, yellowContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+                // Find contours and save them in contours.
+                std::vector<std::vector<cv::Point>> contours;
+                cv::findContours(threshImg, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-                std::vector<cv::Point2f> pathPoints = pathCalculator.calculatePathPoints(blueContours, yellowContours);
-                pathCalculator.drawPath(img, pathPoints);
+                // Create a black image, size of original img.
+                cv::Mat contourOutput = cv::Mat::zeros(img.size(), img.type());
+                // Add the processed contour to the black image. We can not just add the contours to the black image and then
+                // add it to original image by using addWeighted. We have to manually offset the points to the correct position.
+                // This is to ensure that the contours appear where they should in the original picture.
+                for (const auto& contour : contours) {
+                    std::vector<cv::Point> shiftedContour;
+                    for (const auto& point : contour) {
+                        shiftedContour.push_back(cv::Point(point.x, point.y + img.rows / 2)); // Offset vertically
+                        }
+                    cv::drawContours(contourOutput, std::vector<std::vector<cv::Point>>{shiftedContour}, -1, cv::Scalar(0, 255, 0), 2);
+                }
 
-                // Display image with path
-
-                std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
-
-                int64_t sampleTimePoint = cluon::time::toMicroseconds(ts.second);
-                std::string ts_string = std::to_string(sampleTimePoint);
+                // Now we can combine the contours with the original picture. The reason for doing this is to eliminate the noise
+                // in the top part of the picture, and the contour processing is only done on 50% of the original image, which should
+                // increase performance.
+                cv::Mat finalOutput;
+                cv::addWeighted(img, 1.0, contourOutput, 1.0, 0.0, finalOutput);
 
                 // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
                 sharedMemory->unlock();
 
-                std::string timestamp_string = "Timestamp: " + ts_string;
-
-                // after receving image
-                cv::putText(img,
-                            timestamp_string,
-                            cv::Point(10, 30),
-                            cv::FONT_HERSHEY_PLAIN, 1.0,
-                            CV_RGB(255, 255, 255),
-                            2);
-
-                // TODO: Do something with the frame.
-                // Example: Draw a red rectangle and display image.
-                cv::rectangle(img, cv::Point(50, 50), cv::Point(100, 100), cv::Scalar(0, 0, 255));
-
-                // If you want to access the latest received ground steering, don't forget to lock the mutex:
-                {
-                    std::lock_guard<std::mutex> lck(gsrMutex);
-                    std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
-                }
-
                 // Display image on your screen.
                 if (VERBOSE)
                 {
-                    cv::imshow(sharedMemory->name().c_str(), img);
-                    // cv::imshow("Blue Objects", blueObjects);     // Display blue objects
-                    // cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
+
+                    //cv::imshow(sharedMemory->name().c_str(), img);
+                    cv::imshow("ResultImg", threshImg);
+                    cv::imshow("Blue tracking", finalOutput);
 
                     cv::waitKey(1);
                 }
