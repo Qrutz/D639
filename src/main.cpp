@@ -96,28 +96,33 @@ int32_t main(int32_t argc, char **argv)
             int yellowLowV = 50;
             int yellowHighV = 255;
 
+            int maxContourArea = 1000;
+            int minContourArea = 200;
 
             // Add trackbars for manually adjusting HSV during runtime. Makes it easier to experiment with filters and finding
             // the correct HSV values.
-            cv::namedWindow("Control", cv::WINDOW_AUTOSIZE);
-            cv::createTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
-            cv::createTrackbar("HighH", "Control", &iHighH, 179);
+            cv::namedWindow("BlueTrackingControl", cv::WINDOW_AUTOSIZE);
+            cv::createTrackbar("LowH", "BlueTrackingControl", &iLowH, 179); //Hue (0 - 179)
+            cv::createTrackbar("HighH", "BlueTrackingControl", &iHighH, 179);
 
-            cv::createTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
-            cv::createTrackbar("HighS", "Control", &iHighS, 255);
+            cv::createTrackbar("LowS", "BlueTrackingControl", &iLowS, 255); //Saturation (0 - 255)
+            cv::createTrackbar("HighS", "BlueTrackingControl", &iHighS, 255);
 
-            cv::createTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
-            cv::createTrackbar("HighV", "Control", &iHighV, 255);
+            cv::createTrackbar("LowV", "BlueTrackingControl", &iLowV, 255); //Value (0 - 255)
+            cv::createTrackbar("HighV", "BlueTrackingControl", &iHighV, 255);
 
-            cv::namedWindow("YellowControl", cv::WINDOW_AUTOSIZE);
-            cv::createTrackbar("LowH", "YellowControl", &yellowLowH, 179); //Hue (0 - 179)
-            cv::createTrackbar("HighH", "YellowControl", &yellowHighH, 179);
+            cv::createTrackbar("maxContourArea", "BlueTrackingControl", &maxContourArea, 2500);
+            cv::createTrackbar("minContourArea", "BlueTrackingControl", &minContourArea, 2500);
 
-            cv::createTrackbar("LowS", "YellowControl", &yellowLowS, 255); //Saturation (0 - 255)
-            cv::createTrackbar("HighS", "YellowControl", &yellowHighS, 255);
+            cv::namedWindow("YellowTrackingControl", cv::WINDOW_AUTOSIZE);
+            cv::createTrackbar("LowH", "YellowTrackingControl", &yellowLowH, 179); //Hue (0 - 179)
+            cv::createTrackbar("HighH", "YellowTrackingControl", &yellowHighH, 179);
 
-            cv::createTrackbar("LowV", "YellowControl", &yellowLowV, 255); //Value (0 - 255)
-            cv::createTrackbar("HighV", "YellowControl", &yellowHighV, 255);
+            cv::createTrackbar("LowS", "YellowTrackingControl", &yellowLowS, 255); //Saturation (0 - 255)
+            cv::createTrackbar("HighS", "YellowTrackingControl", &yellowHighS, 255);
+
+            cv::createTrackbar("LowV", "YellowTrackingControl", &yellowLowV, 255); //Value (0 - 255)
+            cv::createTrackbar("HighV", "YellowTrackingControl", &yellowHighV, 255);
 
 
             // Endless loop; end the program by pressing Ctrl-C.
@@ -142,6 +147,7 @@ int32_t main(int32_t argc, char **argv)
                     cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
                     img = wrapped.clone();
                 }
+                
                 // Crop bottom half. Only bottom 50% part will be used for processing and contour tracking.
                 cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
                 cv::Mat croppedImg = img(roi);
@@ -150,13 +156,14 @@ int32_t main(int32_t argc, char **argv)
                 // Erode makes objects smaller but fills in the holes. Dilate does the opposite, so if you combine them
                 // it will make a nice end result
                 cv::cvtColor(croppedImg, hsvImg, CV_BGR2HSV);
-                hsvImg2 = hsvImg.clone();
+
                 cv::inRange(hsvImg, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), threshImg);
-                cv::inRange(hsvImg2, cv::Scalar(yellowLowH, yellowLowS, yellowLowV), cv::Scalar(yellowHighH, yellowHighS, yellowHighV), threshImg2);
+                cv::inRange(hsvImg, cv::Scalar(yellowLowH, yellowLowS, yellowLowV), cv::Scalar(yellowHighH, yellowHighS, yellowHighV), threshImg2);
 
                 cv::bitwise_or(threshImg, threshImg2, finalThresh);
 
-                cv::GaussianBlur(finalThresh, finalThresh, cv::Size(5, 5), 0);   //Blur Effect
+                cv::GaussianBlur(finalThresh, finalThresh, cv::Size(3, 3), 0);   //Blur Effect
+                cv::dilate(finalThresh, finalThresh, 0);        // Dilate Filter Effect
                 cv::erode(finalThresh, finalThresh, 0);         // Erode Filter Effect
                 cv::dilate(finalThresh, finalThresh, 0);        // Dilate Filter Effect
 
@@ -170,12 +177,16 @@ int32_t main(int32_t argc, char **argv)
                 // add it to original image by using addWeighted. We have to manually offset the points to the correct position.
                 // This is to ensure that the contours appear where they should in the original picture.
                 for (const auto& contour : contours) {
-                    std::vector<cv::Point> shiftedContour;
-                    for (const auto& point : contour) {
-                        shiftedContour.push_back(cv::Point(point.x, point.y + img.rows / 2)); // Offset vertically
+                    double area = cv::contourArea(contour);
+                    if (area > minContourArea && area < maxContourArea) { // Only process contours smaller than the maximum area
+                        std::vector<cv::Point> shiftedContour;
+                        for (const auto& point : contour) {
+                            shiftedContour.push_back(cv::Point(point.x, point.y + img.rows / 2)); // Offset vertically
                         }
                     cv::drawContours(contourOutput, std::vector<std::vector<cv::Point>>{shiftedContour}, -1, cv::Scalar(0, 255, 0), 2);
+                    }
                 }
+
 
                 // Now we can combine the contours with the original picture. The reason for doing this is to eliminate the noise
                 // in the top part of the picture, and the contour processing is only done on 50% of the original image, which should
@@ -192,7 +203,7 @@ int32_t main(int32_t argc, char **argv)
 
                     //cv::imshow(sharedMemory->name().c_str(), img);
                     cv::imshow("ResultImg", finalThresh);
-                    cv::imshow("Blue tracking", finalOutput);
+                    cv::imshow("Color tracking", finalOutput);
 
                     cv::waitKey(1);
                 }
