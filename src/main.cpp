@@ -61,6 +61,8 @@ int32_t main(int32_t argc, char **argv)
 
         PathCalculator pathCalculator; // PathCalculator object
 
+        float steeringAngle = 0.0; // default steering angle
+
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
         if (sharedMemory && sharedMemory->valid())
@@ -101,17 +103,127 @@ int32_t main(int32_t argc, char **argv)
                     img = wrapped.clone();
                 }
 
-                cv::Mat blueMask = detector.detectBlue(img);
-                cv::Mat yellowMask = detector.detectYellow(img);
+                // Draw blue and yellow objects, the image has to be cut off the top 50% first
+                cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
+                cv::Mat blueObjects = img(roi).clone();
+                cv::Mat yellowObjects = img(roi).clone();
 
+                // Detect blue and yellow objects
+                cv::Mat blueMask = detector.detectBlue(blueObjects);
+                cv::Mat yellowMask = detector.detectYellow(yellowObjects);
+
+                // find the contours of the blue and yellow objects on the bottom half of the image
                 std::vector<std::vector<cv::Point>> blueContours, yellowContours;
                 cv::findContours(blueMask, blueContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
                 cv::findContours(yellowMask, yellowContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-                std::vector<cv::Point2f> pathPoints = pathCalculator.calculatePathPoints(blueContours, yellowContours);
-                pathCalculator.drawPath(img, pathPoints);
+                // cv::cvtColor(blueMask, blueObjects, cv::COLOR_GRAY2BGR);
+                // cv::cvtColor(yellowMask, yellowObjects, cv::COLOR_GRAY2BGR);
 
-                // Display image with path
+                for (const auto &contour : blueContours)
+                {
+                    std::vector<cv::Point> offsetContour;
+                    for (const auto &point : contour)
+                    {
+                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                    }
+                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(255, 0, 0), 2);
+                }
+
+                for (const auto &contour : yellowContours)
+                {
+                    std::vector<cv::Point> offsetContour;
+                    for (const auto &point : contour)
+                    {
+                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                    }
+                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(0, 255, 255), 2);
+                }
+
+                // After finding contours in the ROI
+                std::vector<cv::Point2f> blueCentroids, yellowCentroids;
+
+                // Calculate centroids for blue contours
+                for (const auto &contour : blueContours)
+                {
+                    cv::Moments moments = cv::moments(contour);
+                    if (moments.m00 != 0)
+                    {
+                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
+                        centroid.y += img.rows / 2;
+                        blueCentroids.push_back(centroid);
+                    }
+                }
+
+                // Calculate centroids for yellow contours
+                for (const auto &contour : yellowContours)
+                {
+                    cv::Moments moments = cv::moments(contour);
+                    if (moments.m00 != 0)
+                    {
+                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
+                        centroid.y += img.rows / 2;
+                        yellowCentroids.push_back(centroid);
+                    }
+                }
+
+                // Find closest pair of blue and yellow centroids
+                double minDistance = std::numeric_limits<double>::max();
+                cv::Point2f closestBlue, closestYellow;
+
+                for (const auto &blue : blueCentroids)
+                {
+                    for (const auto &yellow : yellowCentroids)
+                    {
+                        double distance = cv::norm(blue - yellow);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            closestBlue = blue;
+                            closestYellow = yellow;
+                        }
+                    }
+                }
+
+                // Calculate the midpoint of the closest pair
+                cv::Point2f midpoint((closestBlue.x + closestYellow.x) / 2, (closestBlue.y + closestYellow.y) / 2);
+
+                // Draw the midpoint on the original image
+                cv::circle(img, midpoint, 5, cv::Scalar(0, 255, 0), -1); // Green dot for midpoint
+
+                // Optionally, draw lines from centroids to midpoint
+                cv::line(img, closestBlue, midpoint, cv::Scalar(255, 0, 0), 2);
+                cv::line(img, closestYellow, midpoint, cv::Scalar(0, 255, 255), 2);
+
+                // if (!blueCentroids.empty() && !yellowCentroids.empty())
+                // {
+                //     // Both blue and yellow centroids are present
+                //     double blueToMidpointDistance = cv::norm(closestBlue - midpoint);
+                //     double yellowToMidpointDistance = cv::norm(closestYellow - midpoint);
+
+                //     if (std::abs(blueToMidpointDistance - yellowToMidpointDistance) < 10)
+                //     {                        // tolerance of 10 pixels
+                //         steeringAngle = 0.0; // Steering straight
+                //     }
+                //     else if (blueToMidpointDistance < yellowToMidpointDistance)
+                //     {
+                //         steeringAngle = steeringAngle - 0.2; // Steer left
+                //     }
+                //     else
+                //     {
+                //         steeringAngle = steeringAngle + 0.2; // Steer right
+                //     }
+                // }
+                // else if (!blueCentroids.empty())
+                // {
+                //     // Only blue centroids detected
+                //     steeringAngle = steeringAngle + 0.2; // Steer right
+                // }
+                // else if (!yellowCentroids.empty())
+                // {
+                //     // Only yellow centroids detected
+                //     steeringAngle = steeringAngle - 0.2; // Steer left
+                // }
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
@@ -138,15 +250,15 @@ int32_t main(int32_t argc, char **argv)
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
                 {
                     std::lock_guard<std::mutex> lck(gsrMutex);
-                    std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
+                    std::cout << "Steering angle: " << steeringAngle << "Actual steering: " << gsr.groundSteering() << std::endl;
                 }
 
                 // Display image on your screen.
                 if (VERBOSE)
                 {
                     cv::imshow(sharedMemory->name().c_str(), img);
-                    // cv::imshow("Blue Objects", blueObjects);     // Display blue objects
-                    // cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
+                    cv::imshow("Blue Objects", blueObjects);     // Display blue objects
+                    cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
 
                     cv::waitKey(1);
                 }
