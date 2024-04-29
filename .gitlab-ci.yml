@@ -22,8 +22,7 @@ variables:
   DOCKER_TLS_CERTDIR: ''
 
 services:
-  - name: registry.git.chalmers.se/courses/dit638/students/2024-group-16:latest
-  - alias: docker
+  - name: docker:23.0.4-dind
 
 stages:
   - build
