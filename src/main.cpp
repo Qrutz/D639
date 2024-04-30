@@ -59,9 +59,9 @@ int32_t main(int32_t argc, char **argv)
 
         ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
 
-        PathCalculator pathCalculator; // PathCalculator object
-
-        float steeringAngle = 0.0; // default steering angle
+        double steeringAngle = 0.0; // default steering angle
+        double LeftIR;
+        double RightIR;
 
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -76,6 +76,7 @@ int32_t main(int32_t argc, char **argv)
             opendlv::proxy::GroundSteeringRequest gsr;
             std::mutex gsrMutex;
             auto onGroundSteeringRequest = [&gsr, &gsrMutex](cluon::data::Envelope &&env)
+
             {
                 // The envelope data structure provide further details, such as sampleTimePoint as shown in this test case:
                 // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
@@ -85,6 +86,29 @@ int32_t main(int32_t argc, char **argv)
             };
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
+
+            opendlv::proxy::VoltageReading vr;
+            std::mutex vrMutex;
+            auto onVoltageReading = [&vr, &vrMutex, &LeftIR, &RightIR](cluon::data::Envelope &&env)
+            {
+                std::lock_guard<std::mutex> lck(vrMutex);
+                vr = cluon::extractMessage<opendlv::proxy::VoltageReading>(std::move(env));
+
+                // stamp 3 is right sensor and stamp 1 is left sensor
+                if (env.senderStamp() == 3)
+                {
+                    // SET RIGHT IR SENSOR VALUE
+                    RightIR = vr.voltage();
+                }
+                else if (env.senderStamp() == 1)
+                {
+
+                    // SET LEFT IR SENSOR VALUE
+                    LeftIR = vr.voltage();
+                }
+            };
+
+            od4.dataTrigger(opendlv::proxy::VoltageReading::ID(), onVoltageReading);
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
@@ -167,63 +191,17 @@ int32_t main(int32_t argc, char **argv)
                     }
                 }
 
-                // Find closest pair of blue and yellow centroids
-                double minDistance = std::numeric_limits<double>::max();
-                cv::Point2f closestBlue, closestYellow;
+                const double IR_THRESHOLD_CLOSE = 0.0075; // Example threshold needs calibration
 
-                for (const auto &blue : blueCentroids)
+                // If our IR sensor get too close to either side, we need to turn a bit to avoid collision
+                if (RightIR < IR_THRESHOLD_CLOSE)
                 {
-                    for (const auto &yellow : yellowCentroids)
-                    {
-                        double distance = cv::norm(blue - yellow);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            closestBlue = blue;
-                            closestYellow = yellow;
-                        }
-                    }
+                    steeringAngle -= 0.0035; // Steer left
                 }
-
-                // Calculate the midpoint of the closest pair
-                cv::Point2f midpoint((closestBlue.x + closestYellow.x) / 2, (closestBlue.y + closestYellow.y) / 2);
-
-                // Draw the midpoint on the original image
-                cv::circle(img, midpoint, 5, cv::Scalar(0, 255, 0), -1); // Green dot for midpoint
-
-                // Optionally, draw lines from centroids to midpoint
-                cv::line(img, closestBlue, midpoint, cv::Scalar(255, 0, 0), 2);
-                cv::line(img, closestYellow, midpoint, cv::Scalar(0, 255, 255), 2);
-
-                // if (!blueCentroids.empty() && !yellowCentroids.empty())
-                // {
-                //     // Both blue and yellow centroids are present
-                //     double blueToMidpointDistance = cv::norm(closestBlue - midpoint);
-                //     double yellowToMidpointDistance = cv::norm(closestYellow - midpoint);
-
-                //     if (std::abs(blueToMidpointDistance - yellowToMidpointDistance) < 10)
-                //     {                        // tolerance of 10 pixels
-                //         steeringAngle = 0.0; // Steering straight
-                //     }
-                //     else if (blueToMidpointDistance < yellowToMidpointDistance)
-                //     {
-                //         steeringAngle = steeringAngle - 0.2; // Steer left
-                //     }
-                //     else
-                //     {
-                //         steeringAngle = steeringAngle + 0.2; // Steer right
-                //     }
-                // }
-                // else if (!blueCentroids.empty())
-                // {
-                //     // Only blue centroids detected
-                //     steeringAngle = steeringAngle + 0.2; // Steer right
-                // }
-                // else if (!yellowCentroids.empty())
-                // {
-                //     // Only yellow centroids detected
-                //     steeringAngle = steeringAngle - 0.2; // Steer left
-                // }
+                else if (LeftIR < IR_THRESHOLD_CLOSE)
+                {
+                    steeringAngle += 0.0035; // Steer right
+                }
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
@@ -250,7 +228,13 @@ int32_t main(int32_t argc, char **argv)
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
                 {
                     std::lock_guard<std::mutex> lck(gsrMutex);
-                    std::cout << "Steering angle: " << steeringAngle << "Actual steering: " << gsr.groundSteering() << std::endl;
+                    // float actualSteering = gsr.groundSteering();
+                    std::cout << "Steering angle:"
+                              << steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
+                    // float lowerBound = actualSteering * (float)0.75;
+                    // float upperBound = actualSteering * (float)1.25;
+                    // bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
+                    // std::cout << "Is within range: " << isWithinRange << std::endl;
                 }
 
                 // Display image on your screen.
