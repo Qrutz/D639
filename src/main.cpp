@@ -110,6 +110,17 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::VoltageReading::ID(), onVoltageReading);
 
+            opendlv::proxy::AccelerationReading ar;
+            std::mutex arMutex;
+            auto onAccelerationReading = [&ar, &arMutex](cluon::data::Envelope &&env)
+            {
+                std::lock_guard<std::mutex> lck(arMutex);
+                ar = cluon::extractMessage<opendlv::proxy::AccelerationReading>(std::move(env));
+                std::cout << "Acceleration: " << ar.accelerationX() << std::endl;
+            };
+
+            od4.dataTrigger(opendlv::proxy::AccelerationReading::ID(), onAccelerationReading);
+
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
             {
