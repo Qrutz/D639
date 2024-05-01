@@ -1,4 +1,8 @@
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 
 def load_and_clean(filepath, columns):
@@ -63,5 +67,37 @@ if __name__ == "__main__":
     # Print combined dataframe
     print(combined_df)
 
-    # Save the combined dataframe
-    combined_df.to_csv("combined_df.csv", index=False)
+    # Normalize data for training/model preparation
+    scaler = StandardScaler()
+    features_to_scale = [
+        "IRLeft_voltage",
+        "IRRight_voltage",
+        "groundSteering",
+        "angularVelocityX",
+        "angularVelocityY",
+        "angularVelocityZ",
+    ]
+    combined_df[features_to_scale] = scaler.fit_transform(
+        combined_df[features_to_scale]
+    )
+
+    # Set taget variable
+    X = combined_df.drop(["groundSteering"], axis=1)
+
+    y = combined_df["groundSteering"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Train model
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    mse = mean_squared_error(y_test, predictions)
+    print(f"Mean Squared Error: {mse}")
+
+    # Save model
+    import joblib
+
+    joblib.dump(model, "model.pkl")
