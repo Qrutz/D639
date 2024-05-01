@@ -1,0 +1,7 @@
+# Build uses -D_FORTIFY_SOURCE=2, but hardening-check reports:
+#  Fortify Source functions: no, only unprotected functions found!
+libogdi3.2: hardening-no-fortify-functions *
+
+# False positive, string not included in the source.
+libogdi3.2: spelling-error-in-binary usr/lib/ogdi/libvrf.so allow to allow one to
+

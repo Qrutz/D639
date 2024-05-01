@@ -1,0 +1,4 @@
+9052024bf4fd8bcac807a1c3bc611343  usr/lib/x86_64-linux-gnu/libnetcdf.so.13
+05abc698f8d4019b2f5b84a06afe5fa6  usr/share/doc/libnetcdf13/changelog.Debian.gz
+607c883625942a44b919c57b3f9b5954  usr/share/doc/libnetcdf13/copyright
+65b307318181b40a8ab944788e83ad35  usr/share/lintian/overrides/libnetcdf13

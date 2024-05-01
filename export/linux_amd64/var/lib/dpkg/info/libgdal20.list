@@ -1,0 +1,14 @@
+/.
+/usr
+/usr/lib
+/usr/lib/libgdal.so.20.3.2
+/usr/share
+/usr/share/doc
+/usr/share/doc/libgdal20
+/usr/share/doc/libgdal20/TODO.Debian
+/usr/share/doc/libgdal20/changelog.Debian.gz
+/usr/share/doc/libgdal20/copyright
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/libgdal20
+/usr/lib/libgdal.so.20

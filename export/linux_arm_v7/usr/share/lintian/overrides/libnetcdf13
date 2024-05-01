@@ -1,0 +1,3 @@
+# False positive, string not included in source.
+libnetcdf13: spelling-error-in-binary usr/lib/*/libnetcdf.so.* tHSI this
+

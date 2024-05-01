@@ -1,0 +1,13 @@
+/.
+/usr
+/usr/lib
+/usr/lib/x86_64-linux-gnu
+/usr/lib/x86_64-linux-gnu/libnetcdf.so.13
+/usr/share
+/usr/share/doc
+/usr/share/doc/libnetcdf13
+/usr/share/doc/libnetcdf13/changelog.Debian.gz
+/usr/share/doc/libnetcdf13/copyright
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/libnetcdf13
