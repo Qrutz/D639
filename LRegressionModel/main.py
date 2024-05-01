@@ -133,30 +133,74 @@ def test_model(model, new_data, imputer):
     return predictions
 
 
+def loadAllData(file_groups):
+    all_data_frames = []
+    for group in file_groups:
+        preprocessed_data = preprocess_data(
+            voltageReading1=group[0],
+            voltageReading3=group[1],
+            GroundSteering=group[2],
+            AngularVelocityReading=group[3],
+            for_training=True,
+        )
+        all_data_frames.append(preprocessed_data)
+    return pd.concat(all_data_frames, ignore_index=True)
+
+
 if __name__ == "__main__":
 
     RecordingToPredict = [
-        "CSV-Files/REC1/opendlv.proxy.VoltageReading-1.csv",
-        "CSV-Files/REC1/opendlv.proxy.VoltageReading-3.csv",
-        "CSV-Files/REC1/opendlv.proxy.AngularVelocityReading-0.csv",
+        "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+        "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+        "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
     ]
 
-    TrainingData = preprocess_data(
-        voltageReading1="CSV-Files/REC0/opendlv.proxy.VoltageReading-1.csv",
-        voltageReading3="CSV-Files/REC0/opendlv.proxy.VoltageReading-3.csv",
-        GroundSteering="CSV-Files/REC0/opendlv.proxy.GroundSteeringRequest-0.csv",
-        AngularVelocityReading="CSV-Files/REC0/opendlv.proxy.AngularVelocityReading-0.csv",
-        for_training=True,
-    )
+    # TrainingData = preprocess_data(
+    #     voltageReading1="CSV-Files/REC0/opendlv.proxy.VoltageReading-1.csv",
+    #     voltageReading3="CSV-Files/REC0/opendlv.proxy.VoltageReading-3.csv",
+    #     GroundSteering="CSV-Files/REC0/opendlv.proxy.GroundSteeringRequest-0.csv",
+    #     AngularVelocityReading="CSV-Files/REC0/opendlv.proxy.AngularVelocityReading-0.csv",
+    #     for_training=True,
+    # )
+
+    file_paths = [
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_145233-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145233-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145233-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145233-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
+    ]
+
+    # # Load all data
+    TrainingData = loadAllData(file_paths)
 
     # Train model
     [model, imputer] = train_model(TrainingData)
 
-    # # Save model
-    # joblib.dump(model, "model2.pkl")
+    # Save model
+    joblib.dump(model, "modelmultiple.pkl")
 
     # load the trained model
-    model = joblib.load("model.pkl")
+    model = joblib.load("modelmultiple.pkl")
 
     # Load and preprocess new data
     PredictionData = preprocess_data(
@@ -169,11 +213,14 @@ if __name__ == "__main__":
 
     predictions = test_model(model, PredictionData, imputer)
 
+    # save the predictions
+    pd.DataFrame(predictions).to_csv("predictions.csv")
+
     # plot the original steering data and the predictions
     import matplotlib.pyplot as plt
 
     Steering_new = load_and_clean(
-        "CSV-Files/REC1/opendlv.proxy.GroundSteeringRequest-0.csv",
+        "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
         columns=[
             "sampleTimeStamp.seconds",
             "sampleTimeStamp.microseconds",
@@ -181,8 +228,10 @@ if __name__ == "__main__":
         ],
     )
 
-    plt.plot(Steering_new["groundSteering"], label="Ground Steering")
-
-    plt.plot(predictions, label="Predictions")
+    plt.plot(Steering_new["groundSteering"], label="Original Steering")
+    plt.plot(predictions, label="Predicted Steering")
     plt.legend()
+
+    ## calculate whether the predicted steering is withing a +- 25% range, but only for when prediction and steering are both available
+
     plt.show()
