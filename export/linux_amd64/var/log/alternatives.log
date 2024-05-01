@@ -1,0 +1,35 @@
+update-alternatives 2023-05-30 02:03:27: run with --quiet --install /usr/bin/awk awk /usr/bin/mawk 5 --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/share/man/man1/mawk.1.gz --slave /usr/bin/nawk nawk /usr/bin/mawk --slave /usr/share/man/man1/nawk.1.gz nawk.1.gz /usr/share/man/man1/mawk.1.gz
+update-alternatives 2023-05-30 02:03:27: link group awk updated to point to /usr/bin/mawk
+update-alternatives 2023-05-30 02:03:29: run with --quiet --install /usr/bin/awk awk /usr/bin/mawk 5 --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/share/man/man1/mawk.1.gz --slave /usr/bin/nawk nawk /usr/bin/mawk --slave /usr/share/man/man1/nawk.1.gz nawk.1.gz /usr/share/man/man1/mawk.1.gz
+update-alternatives 2023-05-30 02:03:29: run with --install /usr/share/man/man7/builtins.7.gz builtins.7.gz /usr/share/man/man7/bash-builtins.7.gz 10
+update-alternatives 2023-05-30 02:03:29: link group builtins.7.gz updated to point to /usr/share/man/man7/bash-builtins.7.gz
+update-alternatives 2023-05-30 02:03:29: run with --install /usr/sbin/rmt rmt /usr/sbin/rmt-tar 50 --slave /usr/share/man/man8/rmt.8.gz rmt.8.gz /usr/share/man/man8/rmt-tar.8.gz
+update-alternatives 2023-05-30 02:03:29: link group rmt updated to point to /usr/sbin/rmt-tar
+update-alternatives 2023-05-30 02:03:30: run with --install /usr/bin/pager pager /bin/more 50 --slave /usr/share/man/man1/pager.1.gz pager.1.gz /usr/share/man/man1/more.1.gz
+update-alternatives 2023-05-30 02:03:30: link group pager updated to point to /bin/more
+update-alternatives 2023-05-30 02:03:30: run with --remove pager /usr/bin/pg
+update-alternatives 2023-05-30 02:03:30: run with --install /usr/bin/w w /usr/bin/w.procps 50 --slave /usr/share/man/man1/w.1.gz w.1.gz /usr/share/man/man1/w.procps.1.gz
+update-alternatives 2023-05-30 02:03:30: link group w updated to point to /usr/bin/w.procps
+update-alternatives 2023-05-30 02:03:36: run with --quiet --install /usr/bin/awk awk /usr/bin/mawk 5 --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/share/man/man1/mawk.1.gz --slave /usr/bin/nawk nawk /usr/bin/mawk --slave /usr/share/man/man1/nawk.1.gz nawk.1.gz /usr/share/man/man1/mawk.1.gz
+update-alternatives 2023-05-30 02:03:36: auto-repair link group awk
+update-alternatives 2023-05-30 02:03:36: run with --remove builtins.7.gz /usr/share/man/man7/bash-builtins.7.gz
+update-alternatives 2023-05-30 02:03:36: link group builtins.7.gz fully removed
+update-alternatives 2023-05-30 02:03:40: run with --install /usr/sbin/rmt rmt /usr/sbin/rmt-tar 50 --slave /usr/share/man/man8/rmt.8.gz rmt.8.gz /usr/share/man/man8/rmt-tar.8.gz
+update-alternatives 2023-05-30 02:03:40: auto-repair link group rmt
+update-alternatives 2023-05-30 02:03:46: run with --install /usr/bin/pager pager /bin/more 50 --slave /usr/share/man/man1/pager.1.gz pager.1.gz /usr/share/man/man1/more.1.gz
+update-alternatives 2023-05-30 02:03:46: auto-repair link group pager
+update-alternatives 2023-05-30 02:03:46: run with --remove pager /usr/bin/pg
+update-alternatives 2023-05-30 02:03:52: run with --install /usr/bin/w w /usr/bin/w.procps 50 --slave /usr/share/man/man1/w.1.gz w.1.gz /usr/share/man/man1/w.procps.1.gz
+update-alternatives 2023-05-30 02:03:52: auto-repair link group w
+update-alternatives 2023-05-30 02:03:57: run with --install /usr/sbin/rmt rmt /usr/sbin/rmt-tar 50 --slave /usr/share/man/man8/rmt.8.gz rmt.8.gz /usr/share/man/man8/rmt-tar.8.gz
+update-alternatives 2023-05-30 02:03:59: run with --install /usr/bin/pager pager /bin/more 50 --slave /usr/share/man/man1/pager.1.gz pager.1.gz /usr/share/man/man1/more.1.gz
+update-alternatives 2023-05-30 02:03:59: run with --remove pager /usr/bin/pg
+update-alternatives 2023-05-30 02:04:01: run with --install /usr/bin/w w /usr/bin/w.procps 50 --slave /usr/share/man/man1/w.1.gz w.1.gz /usr/share/man/man1/w.procps.1.gz
+update-alternatives 2024-05-01 19:48:54: run with --install /etc/mysql/my.cnf my.cnf /etc/mysql/my.cnf.fallback 100
+update-alternatives 2024-05-01 19:48:54: link group my.cnf updated to point to /etc/mysql/my.cnf.fallback
+update-alternatives 2024-05-01 19:48:56: run with --install /usr/lib/x86_64-linux-gnu/libblas.so.3 libblas.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 10
+update-alternatives 2024-05-01 19:48:56: link group libblas.so.3-x86_64-linux-gnu updated to point to /usr/lib/x86_64-linux-gnu/blas/libblas.so.3
+update-alternatives 2024-05-01 19:49:08: run with --install /usr/lib/x86_64-linux-gnu/liblapack.so.3 liblapack.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 10
+update-alternatives 2024-05-01 19:49:08: link group liblapack.so.3-x86_64-linux-gnu updated to point to /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3
+update-alternatives 2024-05-01 19:49:15: run with --install /usr/share/icons/default/index.theme x-cursor-theme /usr/share/icons/Adwaita/cursor.theme 90
+update-alternatives 2024-05-01 19:49:15: link group x-cursor-theme updated to point to /usr/share/icons/Adwaita/cursor.theme

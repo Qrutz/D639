@@ -1,0 +1,11 @@
+/.
+/usr
+/usr/lib
+/usr/lib/x86_64-linux-gnu
+/usr/lib/x86_64-linux-gnu/libdap.so.25.0.1
+/usr/share
+/usr/share/doc
+/usr/share/doc/libdap25
+/usr/share/doc/libdap25/changelog.Debian.gz
+/usr/share/doc/libdap25/copyright
+/usr/lib/x86_64-linux-gnu/libdap.so.25

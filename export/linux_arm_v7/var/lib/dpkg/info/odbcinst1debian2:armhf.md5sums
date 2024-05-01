@@ -1,0 +1,16 @@
+a54df1e9ffb10a10430022ec78dbb270  usr/lib/arm-linux-gnueabihf/libodbcinst.so.2.0.0
+7d906cf6c80c2cdeab78c5e25b31d517  usr/lib/arm-linux-gnueabihf/odbc/libesoobS.so
+f3f7471868e4dfc69d3bcf9bc7673457  usr/lib/arm-linux-gnueabihf/odbc/libmimerS.so
+ce24971d05ea2abf63bc543f5d0b9aa1  usr/lib/arm-linux-gnueabihf/odbc/libodbcdrvcfg1S.so
+6259efa68ba76f0c6b376175eea7a82c  usr/lib/arm-linux-gnueabihf/odbc/libodbcdrvcfg2S.so
+de71049c6ff59cd1074d42eb14058912  usr/lib/arm-linux-gnueabihf/odbc/libodbcminiS.so
+c504fafc036960ec24116428696fc866  usr/lib/arm-linux-gnueabihf/odbc/libodbcmyS.so
+70f637ecdd5775570b7950f416a72951  usr/lib/arm-linux-gnueabihf/odbc/libodbcnnS.so
+e2cd95f368325c9a88a15daae5e0348c  usr/lib/arm-linux-gnueabihf/odbc/libodbcpsqlS.so
+d0de6712bae5456966f0e23613b16984  usr/lib/arm-linux-gnueabihf/odbc/libodbctxtS.so
+47ce01da4bf45295bfbf9bb4deac5b08  usr/lib/arm-linux-gnueabihf/odbc/liboplodbcS.so
+16222af376390f805a982bf9337b726a  usr/lib/arm-linux-gnueabihf/odbc/liboraodbcS.so
+c6bdd12644784ac38d9f819d8cb9f6b4  usr/lib/arm-linux-gnueabihf/odbc/libsapdbS.so
+f94fcf71a10e547775b161d4ca5eba17  usr/lib/arm-linux-gnueabihf/odbc/libtdsS.so
+0b1e9837a9135ddbba7fbb425d78cd4e  usr/share/doc/odbcinst1debian2/copyright
+245cd2f7ec99342ab3fcca1d52be797b  usr/share/lintian/overrides/odbcinst1debian2

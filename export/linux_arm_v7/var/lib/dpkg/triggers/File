@@ -1,0 +1,12 @@
+/usr/share/fonts fontconfig/noawait
+/usr/share/ghostscript/fonts fontconfig/noawait
+/usr/share/texmf/fonts fontconfig/noawait
+/usr/lib/arm-linux-gnueabihf/gio/modules libglib2.0-0:armhf/noawait
+/usr/lib/gio/modules libglib2.0-0:armhf/noawait
+/usr/share/glib-2.0/schemas libglib2.0-0:armhf
+/usr/share/mime/packages shared-mime-info/noawait
+/usr/share/icons/hicolor hicolor-icon-theme/noawait
+/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders libgdk-pixbuf2.0-0:armhf/noawait
+/usr/lib/arm-linux-gnueabihf/gdk-pixbuf-2.0/2.10.0/loaders libgdk-pixbuf2.0-0:armhf/noawait
+/usr/lib/arm-linux-gnueabihf/gtk-3.0/3.0.0/immodules libgtk-3-0:armhf/noawait
+/usr/lib/gtk-3.0/3.0.0/immodules libgtk-3-0:armhf/noawait

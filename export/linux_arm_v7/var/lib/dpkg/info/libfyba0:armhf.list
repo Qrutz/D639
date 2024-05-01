@@ -1,0 +1,16 @@
+/.
+/usr
+/usr/lib
+/usr/lib/arm-linux-gnueabihf
+/usr/lib/arm-linux-gnueabihf/libfyba.so.0.0.0
+/usr/lib/arm-linux-gnueabihf/libfygm.so.0.0.0
+/usr/lib/arm-linux-gnueabihf/libfyut.so.0.0.0
+/usr/share
+/usr/share/doc
+/usr/share/doc/libfyba0
+/usr/share/doc/libfyba0/README.gz
+/usr/share/doc/libfyba0/changelog.Debian.gz
+/usr/share/doc/libfyba0/copyright
+/usr/lib/arm-linux-gnueabihf/libfyba.so.0
+/usr/lib/arm-linux-gnueabihf/libfygm.so.0
+/usr/lib/arm-linux-gnueabihf/libfyut.so.0
