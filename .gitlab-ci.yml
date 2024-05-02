@@ -34,6 +34,13 @@ before_script:
   - docker info
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
+setup-buildx:
+  stage: build
+  script:
+    - apk add --no-cache git
+    - docker buildx create --use --name mybuilder --driver docker-container
+    - docker buildx inspect --bootstrap
+
 # This section describes what shall be done to build and test the project.
 # build-and-test:
 #   tags:
