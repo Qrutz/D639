@@ -42,8 +42,7 @@ build-and-test:
   stage: build
   script:
     - docker buildx create --use
-    - docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG" --push .
-
+    - docker buildx build --provenance=false --platform linux/amd64,linux/arm64 -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_REF_SLUG" --push .
   except:
     - tags
 
@@ -85,7 +84,6 @@ deploy-job:
   script:
     - echo "Deploying project"
     - docker buildx create --use
-    - docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG" --push .
-
+    - docker buildx build --provenance=false --platform linux/amd64,linux/arm64 -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_REF_SLUG" --push .
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/'
