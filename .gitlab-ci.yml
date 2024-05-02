@@ -49,7 +49,7 @@ Platformthing:
     - docker-build
   stage: build
   script:
-    - docker run --rm -t arm64v8/ubuntu uname -m
+    - docker buildx
   except:
     - tags
 
