@@ -81,6 +81,10 @@ int32_t main(int32_t argc, char **argv)
         double LeftIR;
         double RightIR;
 
+        // For TESTING STUFF
+        int totalEntries = 0;
+        int totalWithinRange = 0;
+
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
         if (sharedMemory && sharedMemory->valid())
@@ -275,6 +279,13 @@ int32_t main(int32_t argc, char **argv)
                     float upperBound = actualSteering * (float)1.25;
                     bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
 
+                    if (isWithinRange)
+                    {
+                        totalWithinRange++;
+                    }
+
+                    totalEntries++;
+
                     // write to file
                     outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "," << isWithinRange << "\n";
 
@@ -293,6 +304,9 @@ int32_t main(int32_t argc, char **argv)
             }
         }
         retCode = 0;
+
+        std::cout << "Total entries: " << totalEntries << std::endl;
+        std::cout << "Total within range: " << totalWithinRange << std::endl;
     }
 
     // Close the file
