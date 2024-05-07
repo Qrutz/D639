@@ -26,11 +26,21 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ColorDetection.hpp"
+
 #include "DesiredpathPlanner.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
     int32_t retCode{1};
+
+    // Open a file for writing our steering angles
+    std::ofstream outputFile("../steeringAngles.csv", std::ios::out | std::ios::app);
+
+    // Write headers if the file is new or empty
+    if (outputFile.tellp() == 0)
+    {
+        outputFile << "Timestamp, SteeringAngle\n";
+    }
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
     if ((0 == commandlineArguments.count("cid")) ||
@@ -122,10 +132,11 @@ int32_t main(int32_t argc, char **argv)
             od4.dataTrigger(opendlv::proxy::AccelerationReading::ID(), onAccelerationReading);
 
             // Open a file for writing
-            std::ofstream outputFile("output.txt");
+            // std::ofstream outputFile("output.txt");
 
             // Check if the file is successfully opened
-            if (!outputFile.is_open()) {
+            if (!outputFile.is_open())
+            {
                 std::cerr << "Error opening file!" << std::endl;
                 return 1;
             }
@@ -252,10 +263,10 @@ int32_t main(int32_t argc, char **argv)
                     // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
                     std::cout << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
 
-                    // Print the statement you want to save to the file
-                    outputFile << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
+                    // write to file
+                    outputFile << ts_string << "," << steeringAngle << "\n";
 
-                              //<< steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
+                    //<< steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
                     // float lowerBound = actualSteering * (float)0.75;
                     // float upperBound = actualSteering * (float)1.25;
                     // bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
