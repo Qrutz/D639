@@ -39,7 +39,14 @@ int32_t main(int32_t argc, char **argv)
     // Write headers if the file is new or empty
     if (outputFile.tellp() == 0)
     {
-        outputFile << "Timestamp, SteeringAngle\n";
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
+    }
+    else
+    {
+        // If the file is not empty, we need to clear it
+        outputFile.close();
+        outputFile.open("../steeringAngles.csv", std::ios::out | std::ios::trunc);
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
     }
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
@@ -70,6 +77,7 @@ int32_t main(int32_t argc, char **argv)
         ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
 
         double steeringAngle = 0.0; // default steering angle
+
         double LeftIR;
         double RightIR;
 
@@ -259,18 +267,18 @@ int32_t main(int32_t argc, char **argv)
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
                 {
                     std::lock_guard<std::mutex> lck(gsrMutex);
-                    // float actualSteering = gsr.groundSteering();
+                    float actualSteering = gsr.groundSteering();
                     // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
                     std::cout << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
 
-                    // write to file
-                    outputFile << ts_string << "," << steeringAngle << "\n";
+                    float lowerBound = actualSteering * (float)0.75;
+                    float upperBound = actualSteering * (float)1.25;
+                    bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
 
-                    //<< steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
-                    // float lowerBound = actualSteering * (float)0.75;
-                    // float upperBound = actualSteering * (float)1.25;
-                    // bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
-                    // std::cout << "Is within range: " << isWithinRange << std::endl;
+                    // write to file
+                    outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "," << isWithinRange << "\n";
+
+                    // check if the steering angle is within +-25% of the actual steering
                 }
 
                 // Display image on your screen.
