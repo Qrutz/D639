@@ -30,6 +30,16 @@
 
 int32_t main(int32_t argc, char **argv)
 {
+    // Open a file for writing
+    std::ofstream outputFile("output.txt");
+
+    // Check if the file is successfully opened
+    if (!outputFile.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return 1;
+    }
+
+
     int32_t retCode{1};
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
@@ -240,8 +250,13 @@ int32_t main(int32_t argc, char **argv)
                 {
                     std::lock_guard<std::mutex> lck(gsrMutex);
                     // float actualSteering = gsr.groundSteering();
-                    std::cout << "Steering angle:"
-                              << steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
+                    // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
+                    std::cout << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
+
+                    // Print the statement you want to save to the file
+                    outputFile << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
+
+                              //<< steeringAngle << " Actual steering: " << gsr.groundSteering() << std::endl;
                     // float lowerBound = actualSteering * (float)0.75;
                     // float upperBound = actualSteering * (float)1.25;
                     // bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
@@ -261,5 +276,9 @@ int32_t main(int32_t argc, char **argv)
         }
         retCode = 0;
     }
+
+    // Close the file
+    outputFile.close();
+
     return retCode;
 }
