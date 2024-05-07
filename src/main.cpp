@@ -25,10 +25,29 @@
 // Include the GUI and image processing header files from OpenCV
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "ColorDetection.hpp"
+
+#include "DesiredpathPlanner.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
     int32_t retCode{1};
+
+    // Open a file for writing our steering angles
+    std::ofstream outputFile("../steeringAngles.csv", std::ios::out | std::ios::app);
+
+    // Write headers if the file is new or empty
+    if (outputFile.tellp() == 0)
+    {
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
+    }
+    else
+    {
+        // If the file is not empty, we need to clear it
+        outputFile.close();
+        outputFile.open("../steeringAngles.csv", std::ios::out | std::ios::trunc);
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
+    }
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
     if ((0 == commandlineArguments.count("cid")) ||
@@ -52,6 +71,16 @@ int32_t main(int32_t argc, char **argv)
         const uint32_t HEIGHT{static_cast<uint32_t>(std::stoi(commandlineArguments["height"]))};
         const bool VERBOSE{commandlineArguments.count("verbose") != 0};
 
+        ColorThreshold blueThreshold{{100, 150, 50}, {140, 255, 255}};  // HSV
+        ColorThreshold yellowThreshold{{20, 100, 100}, {30, 255, 255}}; // HSV
+
+        ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
+
+        double steeringAngle = 0.0; // default steering angle
+
+        double LeftIR;
+        double RightIR;
+
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
         if (sharedMemory && sharedMemory->valid())
@@ -65,6 +94,7 @@ int32_t main(int32_t argc, char **argv)
             opendlv::proxy::GroundSteeringRequest gsr;
             std::mutex gsrMutex;
             auto onGroundSteeringRequest = [&gsr, &gsrMutex](cluon::data::Envelope &&env)
+
             {
                 // The envelope data structure provide further details, such as sampleTimePoint as shown in this test case:
                 // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
@@ -74,6 +104,50 @@ int32_t main(int32_t argc, char **argv)
             };
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
+
+            opendlv::proxy::VoltageReading vr;
+            std::mutex vrMutex;
+            auto onVoltageReading = [&vr, &vrMutex, &LeftIR, &RightIR](cluon::data::Envelope &&env)
+            {
+                std::lock_guard<std::mutex> lck(vrMutex);
+                vr = cluon::extractMessage<opendlv::proxy::VoltageReading>(std::move(env));
+
+                // stamp 3 is right sensor and stamp 1 is left sensor
+                if (env.senderStamp() == 3)
+                {
+                    // SET RIGHT IR SENSOR VALUE
+                    RightIR = vr.voltage();
+                }
+                else if (env.senderStamp() == 1)
+                {
+
+                    // SET LEFT IR SENSOR VALUE
+                    LeftIR = vr.voltage();
+                }
+            };
+
+            od4.dataTrigger(opendlv::proxy::VoltageReading::ID(), onVoltageReading);
+
+            opendlv::proxy::AccelerationReading ar;
+            std::mutex arMutex;
+            auto onAccelerationReading = [&ar, &arMutex](cluon::data::Envelope &&env)
+            {
+                std::lock_guard<std::mutex> lck(arMutex);
+                ar = cluon::extractMessage<opendlv::proxy::AccelerationReading>(std::move(env));
+                std::cout << "Acceleration: " << ar.accelerationX() << std::endl;
+            };
+
+            od4.dataTrigger(opendlv::proxy::AccelerationReading::ID(), onAccelerationReading);
+
+            // Open a file for writing
+            // std::ofstream outputFile("output.txt");
+
+            // Check if the file is successfully opened
+            if (!outputFile.is_open())
+            {
+                std::cerr << "Error opening file!" << std::endl;
+                return 1;
+            }
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
@@ -90,6 +164,82 @@ int32_t main(int32_t argc, char **argv)
                     // Copy the pixels from the shared memory into our own data structure.
                     cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
                     img = wrapped.clone();
+                }
+
+                // Draw blue and yellow objects, the image has to be cut off the top 50% first
+                cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
+                cv::Mat blueObjects = img(roi).clone();
+                cv::Mat yellowObjects = img(roi).clone();
+
+                // Detect blue and yellow objects
+                cv::Mat blueMask = detector.detectBlue(blueObjects);
+                cv::Mat yellowMask = detector.detectYellow(yellowObjects);
+
+                // find the contours of the blue and yellow objects on the bottom half of the image
+                std::vector<std::vector<cv::Point>> blueContours, yellowContours;
+                cv::findContours(blueMask, blueContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+                cv::findContours(yellowMask, yellowContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+                // cv::cvtColor(blueMask, blueObjects, cv::COLOR_GRAY2BGR);
+                // cv::cvtColor(yellowMask, yellowObjects, cv::COLOR_GRAY2BGR);
+
+                for (const auto &contour : blueContours)
+                {
+                    std::vector<cv::Point> offsetContour;
+                    for (const auto &point : contour)
+                    {
+                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                    }
+                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(255, 0, 0), 2);
+                }
+
+                for (const auto &contour : yellowContours)
+                {
+                    std::vector<cv::Point> offsetContour;
+                    for (const auto &point : contour)
+                    {
+                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                    }
+                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(0, 255, 255), 2);
+                }
+
+                // After finding contours in the ROI
+                std::vector<cv::Point2f> blueCentroids, yellowCentroids;
+
+                // Calculate centroids for blue contours
+                for (const auto &contour : blueContours)
+                {
+                    cv::Moments moments = cv::moments(contour);
+                    if (moments.m00 != 0)
+                    {
+                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
+                        centroid.y += img.rows / 2;
+                        blueCentroids.push_back(centroid);
+                    }
+                }
+
+                // Calculate centroids for yellow contours
+                for (const auto &contour : yellowContours)
+                {
+                    cv::Moments moments = cv::moments(contour);
+                    if (moments.m00 != 0)
+                    {
+                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
+                        centroid.y += img.rows / 2;
+                        yellowCentroids.push_back(centroid);
+                    }
+                }
+
+                const double IR_THRESHOLD_CLOSE = 0.0075; // Example threshold needs calibration
+
+                // If our IR sensor get too close to either side, we need to turn a bit to avoid collision
+                if (RightIR < IR_THRESHOLD_CLOSE)
+                {
+                    steeringAngle -= 0.0035; // Steer left
+                }
+                else if (LeftIR < IR_THRESHOLD_CLOSE)
+                {
+                    steeringAngle += 0.0035; // Steer right
                 }
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
@@ -117,18 +267,36 @@ int32_t main(int32_t argc, char **argv)
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
                 {
                     std::lock_guard<std::mutex> lck(gsrMutex);
-                    std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
+                    float actualSteering = gsr.groundSteering();
+                    // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
+                    std::cout << "group_16;" << ts_string << ";" << gsr.groundSteering() << std::endl;
+
+                    float lowerBound = actualSteering * (float)0.75;
+                    float upperBound = actualSteering * (float)1.25;
+                    bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
+
+                    // write to file
+                    outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "," << isWithinRange << "\n";
+
+                    // check if the steering angle is within +-25% of the actual steering
                 }
 
                 // Display image on your screen.
                 if (VERBOSE)
                 {
                     cv::imshow(sharedMemory->name().c_str(), img);
+                    cv::imshow("Blue Objects", blueObjects);     // Display blue objects
+                    cv::imshow("Yellow Objects", yellowObjects); // Display yellow objects
+
                     cv::waitKey(1);
                 }
             }
         }
         retCode = 0;
     }
+
+    // Close the file
+    outputFile.close();
+
     return retCode;
 }
