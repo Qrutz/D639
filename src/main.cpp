@@ -30,16 +30,6 @@
 
 int32_t main(int32_t argc, char **argv)
 {
-    // Open a file for writing
-    std::ofstream outputFile("output.txt");
-
-    // Check if the file is successfully opened
-    if (!outputFile.is_open()) {
-        std::cerr << "Error opening file!" << std::endl;
-        return 1;
-    }
-
-
     int32_t retCode{1};
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
@@ -130,6 +120,15 @@ int32_t main(int32_t argc, char **argv)
             };
 
             od4.dataTrigger(opendlv::proxy::AccelerationReading::ID(), onAccelerationReading);
+
+            // Open a file for writing
+            std::ofstream outputFile("output.txt");
+
+            // Check if the file is successfully opened
+            if (!outputFile.is_open()) {
+                std::cerr << "Error opening file!" << std::endl;
+                return 1;
+            }
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
