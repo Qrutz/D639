@@ -41,9 +41,7 @@ build-and-test:
     - docker-build
   stage: build
   script:
-    - echo "CI_COMMIT_TAG is '$CI_COMMIT_TAG'"
-    - docker buildx create --use
-    - docker buildx build --provenance=false --platform linux/amd64,linux/arm/v7 -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_REF_SLUG" --push .
+    - docker build -f Dockerfile .
   except:
     - tags
 

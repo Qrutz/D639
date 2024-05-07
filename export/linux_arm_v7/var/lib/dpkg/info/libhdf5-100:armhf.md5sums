@@ -1,7 +1,0 @@
-42b6ffddc2afe7a932149aed7221f719  usr/lib/arm-linux-gnueabihf/libhdf5_serial.so.100.0.1
-8bd1dfaabf44fb59a938874dd8e3c4c0  usr/lib/arm-linux-gnueabihf/libhdf5_serial_fortran.so.100.0.1
-57a460384061aa19495e9ea34ed4bff9  usr/lib/arm-linux-gnueabihf/libhdf5_serial_hl.so.100.0.0
-cc7943d291b2eb530290d120c9dcc33d  usr/lib/arm-linux-gnueabihf/libhdf5_serialhl_fortran.so.100.0.0
-7329ed5e8e57ee3ee216d427dd3969d0  usr/share/doc/libhdf5-100/changelog.Debian.gz
-991c1bcaa9b3097184de712a4629f8bf  usr/share/doc/libhdf5-100/copyright
-fc4367806e96328bc4fa0835aa0f8ad9  usr/share/lintian/overrides/libhdf5-100

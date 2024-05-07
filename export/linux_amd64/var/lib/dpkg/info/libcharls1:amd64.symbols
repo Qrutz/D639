@@ -1,9 +1,0 @@
-libCharLS.so.1 libcharls1 #MINVER#
- JpegLsDecode@Base 1.0
- JpegLsDecodeRect@Base 1.0
- JpegLsEncode@Base 1.0
- JpegLsReadHeader@Base 1.0
- JpegLsVerifyEncode@Base 1.0
- _Z18JpegLsDecodeStream14ByteStreamInfoS_P13JlsParameters@Base 1.1.0
- _Z18JpegLsEncodeStream14ByteStreamInfoPmS_P13JlsParameters@Base 1.1.0
- _Z22JpegLsReadHeaderStream14ByteStreamInfoP13JlsParameters@Base 1.1.0
