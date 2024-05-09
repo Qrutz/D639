@@ -1,28 +1,0 @@
-
-Log started: 2024-04-22  18:56:39
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4388 files and directories currently installed.)
-Preparing to unpack .../libc6_2.35-0ubuntu3.7_armhf.deb ...
-debconf: unable to initialize frontend: Dialog
-debconf: (TERM is not set, so the dialog frontend is not usable.)
-debconf: falling back to frontend: Readline
-debconf: unable to initialize frontend: Readline
-debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC contains: /etc/perl /usr/local/lib/arm-linux-gnueabihf/perl/5.34.0 /usr/local/share/perl/5.34.0 /usr/lib/arm-linux-gnueabihf/perl5/5.34 /usr/share/perl5 /usr/lib/arm-linux-gnueabihf/perl-base /usr/lib/arm-linux-gnueabihf/perl/5.34 /usr/share/perl/5.34 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 7.)
-debconf: falling back to frontend: Teletype
-Unpacking libc6:armhf (2.35-0ubuntu3.7) over (2.35-0ubuntu3.6) ...
-Setting up libc6:armhf (2.35-0ubuntu3.7) ...
-debconf: unable to initialize frontend: Dialog
-debconf: (TERM is not set, so the dialog frontend is not usable.)
-debconf: falling back to frontend: Readline
-debconf: unable to initialize frontend: Readline
-debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC contains: /etc/perl /usr/local/lib/arm-linux-gnueabihf/perl/5.34.0 /usr/local/share/perl/5.34.0 /usr/lib/arm-linux-gnueabihf/perl5/5.34 /usr/share/perl5 /usr/lib/arm-linux-gnueabihf/perl-base /usr/lib/arm-linux-gnueabihf/perl/5.34 /usr/share/perl/5.34 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 7.)
-debconf: falling back to frontend: Teletype
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4388 files and directories currently installed.)
-Preparing to unpack .../libc-bin_2.35-0ubuntu3.7_armhf.deb ...
-Unpacking libc-bin (2.35-0ubuntu3.7) over (2.35-0ubuntu3.6) ...
-Setting up libc-bin (2.35-0ubuntu3.7) ...
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4388 files and directories currently installed.)
-Preparing to unpack .../libgnutls30_3.7.3-4ubuntu1.5_armhf.deb ...
-Unpacking libgnutls30:armhf (3.7.3-4ubuntu1.5) over (3.7.3-4ubuntu1.4) ...
-Setting up libgnutls30:armhf (3.7.3-4ubuntu1.5) ...
-Processing triggers for libc-bin (2.35-0ubuntu3.7) ...
-Log ended: 2024-04-22  18:56:44
