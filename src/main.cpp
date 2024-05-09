@@ -71,7 +71,7 @@ int32_t main(int32_t argc, char **argv)
         const uint32_t HEIGHT{static_cast<uint32_t>(std::stoi(commandlineArguments["height"]))};
         const bool VERBOSE{commandlineArguments.count("verbose") != 0};
 
-        ColorThreshold blueThreshold{{100, 150, 50}, {140, 255, 255}};  // HSV
+        ColorThreshold blueThreshold{{68, 150, 50}, {140, 255, 255}};   // HSV
         ColorThreshold yellowThreshold{{20, 100, 100}, {30, 255, 255}}; // HSV
 
         ColorDetector detector(blueThreshold, yellowThreshold); //  ColorDetector object
@@ -179,71 +179,204 @@ int32_t main(int32_t argc, char **argv)
                 cv::Mat blueMask = detector.detectBlue(blueObjects);
                 cv::Mat yellowMask = detector.detectYellow(yellowObjects);
 
-                // find the contours of the blue and yellow objects on the bottom half of the image
-                std::vector<std::vector<cv::Point>> blueContours, yellowContours;
+                // apply mask on blueobjects img
+                blueObjects.setTo(cv::Scalar(0, 0, 255), blueMask);
+
+                // find contours in the blue mask
+                std::vector<std::vector<cv::Point>> blueContours;
                 cv::findContours(blueMask, blueContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+                // find contours in the yellow mask
+                std::vector<std::vector<cv::Point>> yellowContours;
                 cv::findContours(yellowMask, yellowContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-                // cv::cvtColor(blueMask, blueObjects, cv::COLOR_GRAY2BGR);
-                // cv::cvtColor(yellowMask, yellowObjects, cv::COLOR_GRAY2BGR);
+                // filter out small contours
+                const int MIN_CONTOUR_AREA = 100;
 
-                for (const auto &contour : blueContours)
+                for (int i = 0; i < blueContours.size(); i++)
                 {
-                    std::vector<cv::Point> offsetContour;
-                    for (const auto &point : contour)
+                    if (cv::contourArea(blueContours[i]) < MIN_CONTOUR_AREA)
                     {
-                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                        blueContours.erase(blueContours.begin() + i);
+                        i--;
                     }
-                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(255, 0, 0), 2);
                 }
 
-                for (const auto &contour : yellowContours)
+                for (int i = 0; i < yellowContours.size(); i++)
                 {
-                    std::vector<cv::Point> offsetContour;
-                    for (const auto &point : contour)
+                    if (cv::contourArea(yellowContours[i]) < MIN_CONTOUR_AREA)
                     {
-                        offsetContour.push_back(cv::Point(point.x, point.y + img.rows / 2));
+                        yellowContours.erase(yellowContours.begin() + i);
+                        i--;
                     }
-                    cv::drawContours(img, std::vector<std::vector<cv::Point>>{offsetContour}, -1, cv::Scalar(0, 255, 255), 2);
                 }
+
+                // show contours
+                cv::drawContours(blueObjects, blueContours, -1, cv::Scalar(0, 255, 0), 2);
+
+                // show contours
+                cv::drawContours(yellowObjects, yellowContours, -1, cv::Scalar(0, 255, 0), 2);
 
                 // After finding contours in the ROI
                 std::vector<cv::Point2f> blueCentroids, yellowCentroids;
 
-                // Calculate centroids for blue contours
-                for (const auto &contour : blueContours)
+                // Find the centroids of the blue contours
+                for (int i = 0; i < blueContours.size(); i++)
                 {
-                    cv::Moments moments = cv::moments(contour);
-                    if (moments.m00 != 0)
-                    {
-                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
-                        centroid.y += img.rows / 2;
-                        blueCentroids.push_back(centroid);
-                    }
+                    cv::Moments M = cv::moments(blueContours[i]);
+                    cv::Point2f c(M.m10 / M.m00, M.m01 / M.m00);
+                    blueCentroids.push_back(c);
                 }
 
-                // Calculate centroids for yellow contours
-                for (const auto &contour : yellowContours)
+                // show the centroids coordinates of teh closest blue object
+                if (blueCentroids.size() > 0)
                 {
-                    cv::Moments moments = cv::moments(contour);
-                    if (moments.m00 != 0)
+                    cv::Point2f closestBlue = blueCentroids[0];
+                    for (int i = 1; i < blueCentroids.size(); i++)
                     {
-                        cv::Point2f centroid(moments.m10 / moments.m00, moments.m01 / moments.m00);
-                        centroid.y += img.rows / 2;
-                        yellowCentroids.push_back(centroid);
+                        if (cv::norm(closestBlue - cv::Point2f(img.cols / 2, img.rows)) > cv::norm(blueCentroids[i] - cv::Point2f(img.cols / 2, img.rows)))
+                        {
+                            closestBlue = blueCentroids[i];
+                        }
                     }
+
+                    // Draw a circle around the closest blue object
+                    cv::circle(blueObjects, closestBlue, 5, cv::Scalar(255, 0, 0), -1);
+
+                    // also show teh coordinates of the closest blue object
+                    cv::putText(blueObjects,
+                                "Blue: " + std::to_string(closestBlue.x) + ", " + std::to_string(closestBlue.y),
+                                cv::Point(closestBlue.x, closestBlue.y),
+                                cv::FONT_HERSHEY_PLAIN, 1.0,
+                                CV_RGB(255, 255, 255),
+                                2);
+                }
+
+                // Find the centroids of the yellow contours
+                for (int i = 0; i < yellowContours.size(); i++)
+                {
+                    cv::Moments M = cv::moments(yellowContours[i]);
+                    cv::Point2f c(M.m10 / M.m00, M.m01 / M.m00);
+                    yellowCentroids.push_back(c);
+                }
+
+                // show the centroids coordinates of teh closest yellow object
+                if (yellowCentroids.size() > 0)
+                {
+                    cv::Point2f closestYellow = yellowCentroids[0];
+                    for (int i = 1; i < yellowCentroids.size(); i++)
+                    {
+                        if (cv::norm(closestYellow - cv::Point2f(img.cols / 2, img.rows)) > cv::norm(yellowCentroids[i] - cv::Point2f(img.cols / 2, img.rows)))
+                        {
+                            closestYellow = yellowCentroids[i];
+                        }
+                    }
+
+                    // Draw a circle around the closest yellow object
+                    cv::circle(yellowObjects, closestYellow, 5, cv::Scalar(255, 0, 0), -1);
+
+                    // also show teh coordinates of the closest yellow object
+                    cv::putText(yellowObjects,
+                                "Yellow: " + std::to_string(closestYellow.x) + ", " + std::to_string(closestYellow.y),
+                                cv::Point(closestYellow.x, closestYellow.y),
+                                cv::FONT_HERSHEY_PLAIN, 1.0,
+                                CV_RGB(255, 255, 255),
+                                2);
+                }
+
+                // draw a line to the closest blue object from the center of the image
+                if (blueCentroids.size() > 0)
+                {
+                    cv::line(blueObjects, cv::Point(img.cols / 2, img.rows), blueCentroids[0], cv::Scalar(255, 0, 0), 2);
+                }
+
+                // draw a line to the closest yellow object from the center of the image
+                if (yellowCentroids.size() > 0)
+                {
+                    cv::line(yellowObjects, cv::Point(img.cols / 2, img.rows), yellowCentroids[0], cv::Scalar(255, 0, 0), 2);
+                }
+
+                // IF THERES A BLUE AND YELLOW OBJECT CLOSEBY THAT WE HAVE DETECTED
+                if (blueCentroids.size() > 0 && yellowCentroids.size() > 0)
+                {
+                    cv::Point2f blueVector = blueCentroids[0] - cv::Point2f(img.cols / 2, img.rows);
+                    cv::Point2f yellowVector = yellowCentroids[0] - cv::Point2f(img.cols / 2, img.rows);
+
+                    // print the vectors
+                    std::cout << "Blue Vector: " << blueVector << std::endl;
+                    std::cout << "Yellow Vector: " << yellowVector << std::endl;
+
+                    // if the length to the blue and yellow object are somewhat similar we can assume the angle is 0
+                    if (cv::norm(blueVector) < 50 || cv::norm(yellowVector) < 50)
+                    {
+                        steeringAngle = 0.0;
+                    }
+
+                    // angle is between -0.3 and 0.3 so we need to adjust accordingly
+                    steeringAngle = atan2(yellowVector.y, yellowVector.x) - atan2(blueVector.y, blueVector.x);
+
+                    // Convert the angle to degrees
+                    steeringAngle = steeringAngle * 180 / M_PI;
+
+                    // scale it to -0.3 to 0.3
+                    steeringAngle = steeringAngle / 180 * 0.3;
+                }
+
+                // IF WE ONLY HAVE BLUE OBJECTS IN SIGHT
+                else if (blueCentroids.size() > 0)
+                {
+                    cv::Point2f blueVector = blueCentroids[0] - cv::Point2f(img.cols / 2, img.rows);
+
+                    // print the vectors
+                    std::cout << "Blue Vector: " << blueVector << std::endl;
+
+                    // angle is between -0.3 and 0.3 so we need to adjust accordingly
+                    steeringAngle = atan2(blueVector.y, blueVector.x);
+
+                    // Convert the angle to degrees
+                    steeringAngle = steeringAngle * 180 / M_PI;
+
+                    // scale it to -0.3 to 0.3
+                    steeringAngle = steeringAngle / 180 * 0.3;
+                }
+
+                // IF WE ONLY HAVE YELLOW OBJECTS IN SIGHT
+                else if (yellowCentroids.size() > 0)
+                {
+                    cv::Point2f yellowVector = yellowCentroids[0] - cv::Point2f(img.cols / 2, img.rows);
+
+                    // print the vectors
+                    std::cout << "Yellow Vector: " << yellowVector << std::endl;
+
+                    // angle is between -0.3 and 0.3 so we need to adjust accordingly
+                    steeringAngle = atan2(yellowVector.y, yellowVector.x);
+
+                    // Convert the angle to degrees
+                    steeringAngle = steeringAngle * 180 / M_PI;
+
+                    // scale it to -0.3 to 0.3
+                    steeringAngle = steeringAngle / 180 * 0.3;
                 }
 
                 const double IR_THRESHOLD_CLOSE = 0.0075; // Example threshold needs calibration
 
-                // If our IR sensor get too close to either side, we need to turn a bit to avoid collision
-                if (RightIR < IR_THRESHOLD_CLOSE)
+                // IF WE DONT HAVE ANY OBJECTS IN SIGHT, LETS USE THE IR SENSORS
+                if (blueCentroids.size() == 0 && yellowCentroids.size() == 0)
                 {
-                    steeringAngle -= 0.0035; // Steer left
-                }
-                else if (LeftIR < IR_THRESHOLD_CLOSE)
-                {
-                    steeringAngle += 0.0035; // Steer right
+                    // IF THE LEFT IR SENSOR IS TRIGGERED
+                    if (LeftIR < IR_THRESHOLD_CLOSE)
+                    {
+                        steeringAngle = steeringAngle + 0.050;
+                    }
+                    // IF THE RIGHT IR SENSOR IS TRIGGERED
+                    else if (RightIR < IR_THRESHOLD_CLOSE)
+                    {
+                        steeringAngle = steeringAngle - 0.050;
+                    }
+                    else
+                    {
+                        steeringAngle = 0.0;
+                    }
                 }
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
@@ -307,6 +440,8 @@ int32_t main(int32_t argc, char **argv)
 
         std::cout << "Total entries: " << totalEntries << std::endl;
         std::cout << "Total within range: " << totalWithinRange << std::endl;
+        // percentage of entries within range
+        std::cout << "Percentage within range: " << (float)totalWithinRange / totalEntries * 100 << "%" << std::endl;
     }
 
     // Close the file
