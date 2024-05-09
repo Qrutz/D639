@@ -25,11 +25,9 @@
 // Include the GUI and image processing header files from OpenCV
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <iostream>
-#include "HsvColorSeparator.hpp"
+#include "ColorDetection.hpp"
 
-#include "NoiseRemover.hpp"
-#include "ContourFinder.hpp"
+#include "DesiredpathPlanner.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
@@ -110,18 +108,6 @@ int32_t main(int32_t argc, char **argv)
             };
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
-
-            HsvColorSeparator colorSeparator;
-            NoiseRemover noiseRemover;
-            ContourFinder contourFinder;
-
-            int maxContourArea = 1000;
-            int minContourArea = 100;
-
-            cv::namedWindow("Color tracking", cv::WINDOW_AUTOSIZE);
-            cv::createTrackbar("maxContourArea", "Color tracking", &maxContourArea, 2500);
-            cv::createTrackbar("minContourArea", "Color tracking", &minContourArea, 2500);
-
 
             opendlv::proxy::VoltageReading vr;
             std::mutex vrMutex;
