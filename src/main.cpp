@@ -29,6 +29,8 @@
 #include "HsvColorSeparator.hpp"
 #include "NoiseRemover.hpp"
 #include "ContourFinder.hpp"
+#include "DirectionCalculator.hpp"
+#include "CommonDefs.hpp"
 
 int32_t main(int32_t argc, char **argv)
 {
@@ -80,21 +82,27 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
-            HsvColorSeparator colorSeparator;
-            NoiseRemover noiseRemover;
-            ContourFinder contourFinder;
+            cv::namedWindow("Combined Color tracking", cv::WINDOW_AUTOSIZE);
+            cv::createTrackbar("maxContourArea", "Combined Color tracking", &maxContourArea, 2500);
+            cv::createTrackbar("minContourArea", "Combined Color tracking", &minContourArea, 2500);
 
-            int maxContourArea = 1000;
-            int minContourArea = 100;
 
-            cv::namedWindow("Color tracking", cv::WINDOW_AUTOSIZE);
-            cv::createTrackbar("maxContourArea", "Color tracking", &maxContourArea, 2500);
-            cv::createTrackbar("minContourArea", "Color tracking", &minContourArea, 2500);
+            DirectionCalculator directionCalculator;
 
+            //int directionOfCar = -1;
+            //float steeringWheelAngle = 0.0;
+            //float maxSteering = 0.3;
+            //float minSteering = -0.3;
+            
+            int frameCount = 0;
+            int direction = 0;
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
             {
+
+                frameCount++;  // Count the number of frames processed.
+
                 // OpenCV data structure to hold an image.
                 
                 cv::Mat img;
@@ -111,7 +119,20 @@ int32_t main(int32_t argc, char **argv)
                     cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
                     img = wrapped.clone();
                 }
-                
+
+                // We start off by detecting if the track is moving in a clockwise or counter-clockwise direction.
+                if(frameCount % 15 == 0){
+                    direction = directionCalculator.CalculateDirection(img, direction);
+                    if(direction == -1){
+                        std::cout << "Direction: Clockwise" << std::endl;
+                    }
+                    else if(direction == 1){
+                        std::cout << "Direction: Counter-Clockwise" << std::endl;
+                    }
+                    else{
+                        std::cout << "Direction: No direction" << std::endl;
+                    }
+                }
                 // Crop bottom half. Only bottom 50% part will be used for processing and contour tracking.
                 cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
                 cv::Mat croppedImg = img(roi);
@@ -124,17 +145,20 @@ int32_t main(int32_t argc, char **argv)
                 cv::Mat blueThreshImg = colorSeparator.detectBlueColor(hsvImg);
                 cv::Mat yellowThreshImg = colorSeparator.detectYellowColor(hsvImg);
 
-                cv::bitwise_or(blueThreshImg, yellowThreshImg, finalThresh);
+                yellowThreshImg = noiseRemover.RemoveNoise(yellowThreshImg);
+                blueThreshImg = noiseRemover.RemoveNoise(blueThreshImg);
 
-                finalThresh = noiseRemover.RemoveNoise(finalThresh);
+                cv::Mat yellowContourOutput = contourFinder.FindContours(yellowThreshImg, img, minContourArea, maxContourArea);
+                cv::Mat blueContourOutput = contourFinder.FindContours(blueThreshImg, img, minContourArea, maxContourArea);
 
-                cv::Mat contourOutput = contourFinder.FindContours(finalThresh, img, minContourArea, maxContourArea);
+
+                cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
 
                 // Now we can combine the contours with the original picture. The reason for doing this is to eliminate the noise
                 // in the top part of the picture, and the contour processing is only done on 50% of the original image, which should
                 // increase performance.
                 cv::Mat finalOutput;
-                cv::addWeighted(img, 1.0, contourOutput, 1.0, 0.0, finalOutput);
+                cv::addWeighted(img, 1.0, finalThresh, 1.0, 0.0, finalOutput);
 
                 // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
                 sharedMemory->unlock();
@@ -144,8 +168,10 @@ int32_t main(int32_t argc, char **argv)
                 {
 
                     //cv::imshow(sharedMemory->name().c_str(), img);
-                    cv::imshow("ResultImg", img);
-                    cv::imshow("Color tracking", finalOutput);
+                    //cv::imshow("ResultImg", img);
+                    //cv::imshow("Blue", blueContourOutput);
+                    //cv::imshow("Yellow", yellowContourOutput);
+                    cv::imshow("Combined Color tracking", finalOutput);
 
                     cv::waitKey(1);
                 }

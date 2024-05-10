@@ -11,6 +11,7 @@ class ContourFinder{
     public:
     ContourFinder();
     cv::Mat FindContours(const cv::Mat &imageInput, const cv::Mat &originalImage, int &minContourArea, int &maxContourArea);
+    int isEmptyOfSignificantContours(const cv::Mat &imageInput);
 };
 
 #endif

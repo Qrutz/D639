@@ -28,5 +28,20 @@ cv::Mat ContourFinder::FindContours(const cv::Mat &imageInput,const cv::Mat &ori
                 return contourOutput;
 }
 
+int ContourFinder::isEmptyOfSignificantContours(const cv::Mat &imageInput) {
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(imageInput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+    int minimumArea = 100;
+
+    for (const auto& contour : contours) {
+        double area = cv::contourArea(contour);
+        if (area > minimumArea) {
+            return 1; // Found a contour that is larger than the minimum area
+        }
+    }
+    return -1; // No contours found that are larger than the minimum area
+}
+
 
 
