@@ -9,5 +9,6 @@ cv::Mat NoiseRemover::RemoveNoise(const cv::Mat &inputFrame){
         cv::erode(inputFrame, inputFrame, 0);         // Erode Filter Effect
         cv::dilate(inputFrame, inputFrame, 0);        // Dilate Filter Effect
 
+
         return inputFrame;
 }

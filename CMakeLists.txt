@@ -96,7 +96,7 @@ set(LIBRARIES ${LIBRARIES} ${OpenCV_LIBS})
 add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/ContourFinder.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/HsvColorSeparator.cpp 
 ${CMAKE_CURRENT_SOURCE_DIR}/src/NoiseRemover.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/DirectionCalculator.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/CommonDefs.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/CommonDefs.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/AngleCalculator.cpp
 )
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 

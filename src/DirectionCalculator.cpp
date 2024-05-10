@@ -5,7 +5,6 @@
 #include "ContourFinder.hpp"
 #include "DirectionCalculator.hpp"
 #include "CommonDefs.hpp"
-#include <iostream>
 
 DirectionCalculator::DirectionCalculator() {}
 
@@ -15,10 +14,9 @@ int DirectionCalculator::CalculateDirection(cv::Mat &inputImage, int &direction)
 
     cv::cvtColor(inputImage, hsvConvertedImg, CV_BGR2HSV);
 
+    int width = inputImage.cols / 2;
     int adjustedHeight = static_cast<int>(inputImage.rows * 0.8);
 
-    int width = inputImage.cols / 2;
-    int height = inputImage.rows;
 
     // Define the rectangles for the left and right halves
     cv::Rect leftHalf(0, 0, width, adjustedHeight);

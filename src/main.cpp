@@ -30,6 +30,7 @@
 #include "NoiseRemover.hpp"
 #include "ContourFinder.hpp"
 #include "DirectionCalculator.hpp"
+#include "AngleCalculator.hpp"
 #include "CommonDefs.hpp"
 
 int32_t main(int32_t argc, char **argv)
@@ -88,14 +89,16 @@ int32_t main(int32_t argc, char **argv)
 
 
             DirectionCalculator directionCalculator;
+            AngleCalculator angleCalculator;
 
-            //int directionOfCar = -1;
-            //float steeringWheelAngle = 0.0;
-            //float maxSteering = 0.3;
-            //float minSteering = -0.3;
-            
+            // Car position on the X axis
+            //const int carPositionX = 320;
+
+            float steeringWheelAngle = 0.0f;
+            const float maxSteering = 0.3f;
+            const float minSteering = -0.3f;
             int frameCount = 0;
-            int direction = 0;
+            int direction = 0; // -1 for clockwise, 1 for counter-clockwise
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
@@ -148,30 +151,39 @@ int32_t main(int32_t argc, char **argv)
                 yellowThreshImg = noiseRemover.RemoveNoise(yellowThreshImg);
                 blueThreshImg = noiseRemover.RemoveNoise(blueThreshImg);
 
-                cv::Mat yellowContourOutput = contourFinder.FindContours(yellowThreshImg, img, minContourArea, maxContourArea);
-                cv::Mat blueContourOutput = contourFinder.FindContours(blueThreshImg, img, minContourArea, maxContourArea);
+                //cv::Mat yellowContourOutput = contourFinder.FindContours(yellowThreshImg, img, minContourArea, maxContourArea);
+                //cv::Mat blueContourOutput = contourFinder.FindContours(blueThreshImg, img, minContourArea, maxContourArea);
 
+                // If clockwise map, blue cones on left side, yellow cones on right side.
+                if (direction != 0) {
+                    bool isClockwise = (direction == -1);
+                    steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering);
+                }
 
-                cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
+                //std::cout << "Steering Wheel Angle: " << steeringWheelAngle << std::endl;
+
+                //cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
 
                 // Now we can combine the contours with the original picture. The reason for doing this is to eliminate the noise
                 // in the top part of the picture, and the contour processing is only done on 50% of the original image, which should
                 // increase performance.
-                cv::Mat finalOutput;
-                cv::addWeighted(img, 1.0, finalThresh, 1.0, 0.0, finalOutput);
+                //cv::Mat finalOutput;
+                //cv::addWeighted(img, 1.0, finalThresh, 1.0, 0.0, finalOutput);
 
                 // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
                 sharedMemory->unlock();
+
+                // If you want to access the latest received ground steering, don't forget to lock the mutex:
 
                 // Display image on your screen.
                 if (VERBOSE)
                 {
 
-                    //cv::imshow(sharedMemory->name().c_str(), img);
+                    cv::imshow(sharedMemory->name().c_str(), img);
                     //cv::imshow("ResultImg", img);
                     //cv::imshow("Blue", blueContourOutput);
                     //cv::imshow("Yellow", yellowContourOutput);
-                    cv::imshow("Combined Color tracking", finalOutput);
+                    //cv::imshow("Combined Color tracking", finalOutput);
 
                     cv::waitKey(1);
                 }
