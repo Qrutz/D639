@@ -5,19 +5,19 @@
 int iLowH = 90;
 int iHighH = 135;
 
-int iLowS = 50; 
+int iLowS = 44; 
 int iHighS = 255;
 
-int iLowV = 50;
+int iLowV = 43;
 int iHighV = 255;
 
 int yellowLowH = 15;
 int yellowHighH = 30;
 
-int yellowLowS = 50; 
+int yellowLowS = 42; 
 int yellowHighS = 255;
 
-int yellowLowV = 50;
+int yellowLowV = 46;
 int yellowHighV = 255;
 
 HsvColorSeparator::HsvColorSeparator(){};

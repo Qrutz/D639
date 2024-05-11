@@ -50,7 +50,10 @@ float AngleCalculator::CalculateSteeringAngle(cv::Mat &yellowInputImage, cv::Mat
         }
     }
 
+    // Calculate points that divide the screen into three equal vertical sections
     cv::Point imageCenter(blueInputImage.cols / 2, blueInputImage.rows / 2);
+    cv::Point imageLeftThird(blueInputImage.cols / 3, blueInputImage.rows / 2);  // One third from the left
+    cv::Point imageRightThird(blueInputImage.cols * 2 / 3, blueInputImage.rows / 2);  // Two thirds from the left
 
     cv::Point blueCentroid = calculateCentroid(filteredBlueContours, imageCenter);
     cv::Point yellowCentroid = calculateCentroid(filteredYellowContours, imageCenter);
@@ -73,29 +76,18 @@ float AngleCalculator::CalculateSteeringAngle(cv::Mat &yellowInputImage, cv::Mat
     cv::line(visualOutput, imageCenter, blueCentroid, cv::Scalar(255, 0, 0), 2); // Blue line to blue centroid
     cv::line(visualOutput, imageCenter, yellowCentroid, cv::Scalar(0, 255, 255), 2); // Yellow line to yellow centroid
 
+    // Drawing the division lines on the image for visual verification
+    cv::line(visualOutput, cv::Point(imageLeftThird.x, 0), cv::Point(imageLeftThird.x, visualOutput.rows), cv::Scalar(0, 255, 0), 2);  // Green line for left third
+    cv::line(visualOutput, cv::Point(imageRightThird.x, 0), cv::Point(imageRightThird.x, visualOutput.rows), cv::Scalar(0, 255, 0), 2);  // Green line for right third
+
     // Display the visual output
     cv::imshow("Visual Output", visualOutput);
 
     float newSteering = steeringWheelAngle;
-    float blueAdjustment = adjustSteering(blueCentroid, imageCenter, !isClockwise);
-    float yellowAdjustment = adjustSteering(yellowCentroid, imageCenter, isClockwise);
-
-    newSteering += (isClockwise ? blueAdjustment - yellowAdjustment : -blueAdjustment + yellowAdjustment);
-
-    // Apply smoothing to new steering angle to ensure gentle transitions
-    newSteering = smoothSteering(steeringWheelAngle, newSteering, 0.1f); // Example smoothing factor, adjust as needed
+    newSteering = adjustSteering(newSteering, blueCentroid, yellowCentroid, imageCenter, imageLeftThird, imageRightThird, isClockwise);
 
     // Clamp the steering value to be within allowed limits
     newSteering = std::max(minSteering, std::min(maxSteering, newSteering));
-
-       // More detailed debug output based on steering decision
-    if (newSteering > steeringWheelAngle) {
-        std::cout << "Turning Right. New Steering Angle: " << newSteering << std::endl;
-    } else if (newSteering < steeringWheelAngle) {
-        std::cout << "Turning Left. New Steering Angle: " << newSteering << std::endl;
-    } else {
-        std::cout << "Maintaining Direction. Steering Angle: " << newSteering << std::endl;
-    }
 
     return newSteering;
 }
@@ -116,10 +108,60 @@ cv::Point AngleCalculator::calculateCentroid(const std::vector<std::vector<cv::P
     return count > 0 ? cv::Point(xSum / count, ySum / count) : imageCenter;  // Fallback to image center if no valid centroids found
 }
 
-float AngleCalculator::adjustSteering(const cv::Point& centroid, const cv::Point& center, bool shouldSteerRight) {
-    float error = 
+float AngleCalculator::adjustSteering(float &newSteering, cv::Point& blueCentroid, cv::Point yellowCentroid, const cv::Point& imageCenter, const cv::Point& imageLeftThird, const cv::Point& imageRightThird, bool isClockwise) {
+    // Define how much to adjust steering when necessary
+    float steeringAdjustmentAmount = 0.05f;  // This value might need tuning
 
-    return shouldSteerRight ? error : -error;
+    // For clockwise direction: Blue cones on the left, Yellow cones on the right
+    if (isClockwise) {
+        std::cout << "Clockwise Direction" << std::endl;
+        // Check if blue cones have crossed from the left third into the center
+        if (blueCentroid.x > imageLeftThird.x && blueCentroid.x < imageCenter.x) {
+            std::cout << "Steering Right" << std::endl;
+            return newSteering - steeringAdjustmentAmount;  // Steer right to adjust for blue cone moving towards center
+        }
+        if(blueCentroid.x > imageRightThird.x){
+            std::cout << "Steering Right Sharply" << std::endl;
+            return newSteering - steeringAdjustmentAmount * 1.5;  // Steer right to adjust for blue cone moving towards center
+        }
+    
+        // Check if yellow cones have crossed from the right third into the center
+        if (yellowCentroid.x < imageRightThird.x && yellowCentroid.x > imageCenter.x) {
+            std::cout << "Steering Left" << std::endl;
+            return newSteering + steeringAdjustmentAmount;  // Steer left to adjust for yellow cone moving towards center
+        }
+        if(yellowCentroid.x < imageLeftThird.x){
+            std::cout << "Steering Left Sharply" << std::endl;
+            return newSteering + steeringAdjustmentAmount * 1.5;  // Steer left to adjust for yellow cone moving towards center
+        }
+
+    }
+    // For counter-clockwise direction: Blue cones on the right, Yellow cones on the left
+    else {
+        std::cout << "Counter-Clockwise Direction" << std::endl;
+        // Blue cones on the right
+        if (blueCentroid.x < imageRightThird.x && blueCentroid.x > imageCenter.x) {
+            std::cout << "Steering Left" << std::endl;
+            return newSteering + steeringAdjustmentAmount;
+        }
+        if (blueCentroid.x < imageLeftThird.x) {
+            std::cout << "Steering Left Sharply" << std::endl;
+            return newSteering + steeringAdjustmentAmount * 1.5;
+        }
+        // Yellow cones on the left
+        if (yellowCentroid.x > imageLeftThird.x && yellowCentroid.x < imageCenter.x) {
+            std::cout << "Steering Right" << std::endl;
+            return newSteering - steeringAdjustmentAmount;
+        }
+        if (yellowCentroid.x > imageRightThird.x) {
+            std::cout << "Steering Right Sharply" << std::endl;
+            return newSteering - steeringAdjustmentAmount * 1.5;
+        }
+    }
+
+    // If none of the conditions are met, no steering adjustment is needed
+    std::cout << "No Steering Adjustment" << std::endl;
+    return newSteering * 0.5;
 }
 
 float AngleCalculator::smoothSteering(float currentSteering, float newSteering, float smoothingFactor) {

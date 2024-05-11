@@ -78,7 +78,7 @@ int32_t main(int32_t argc, char **argv)
                 // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
                 std::lock_guard<std::mutex> lck(gsrMutex);
                 gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
-                std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+                //std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
             };
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
@@ -99,6 +99,11 @@ int32_t main(int32_t argc, char **argv)
             const float minSteering = -0.3f;
             int frameCount = 0;
             int direction = 0; // -1 for clockwise, 1 for counter-clockwise
+
+            // For TESTING STUFF
+            int totalEntries = 0;
+            int totalWithinRange = 0;
+
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
@@ -160,7 +165,6 @@ int32_t main(int32_t argc, char **argv)
                     steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering);
                 }
 
-                //std::cout << "Steering Wheel Angle: " << steeringWheelAngle << std::endl;
 
                 //cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
 
@@ -172,6 +176,37 @@ int32_t main(int32_t argc, char **argv)
 
                 // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
                 sharedMemory->unlock();
+
+        {
+            std::lock_guard<std::mutex> lck(gsrMutex);
+            float actualSteering = gsr.groundSteering();  // Obtain the ground truth steering angle
+
+            // Check if the ground truth steering angle is not zero
+            if (actualSteering != 0.0f) {
+                // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
+                std::cout << "Actualy Steering : " << actualSteering << std::endl;
+                std::cout << "Calculated Angle : " << steeringWheelAngle << std::endl;
+
+                // Calculate the lower and upper bounds for the allowed steering range
+                float lowerBound = actualSteering * 0.75f;
+                float upperBound = actualSteering * 1.25f;
+
+                // Check if the steeringWheelAngle is within the calculated range
+                bool isWithinRange = (steeringWheelAngle >= lowerBound) && (steeringWheelAngle <= upperBound);
+
+                // If the steering wheel angle is within the acceptable range
+                if (isWithinRange) {
+                    totalWithinRange++;
+                    std::cout << "Total within range: " << totalWithinRange << " / " << totalEntries << std::endl;
+                }
+
+                totalEntries++; // Increment the total number of entries checked
+            } else {
+                // Output when skipping frames where the ground truth steering angle is zero
+                std::cout << "Skipping frame with zero ground steering angle." << std::endl;
+            }
+        }
+
 
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
 
