@@ -9,9 +9,13 @@ import time
 
 from pycluon import SharedMemory
 
-model = joblib.load("modelmultiple.pkl")
-scaler = joblib.load("scaler.pkl")
-imputer = joblib.load("imputer.pkl")
+# model = joblib.load("./Models/AngularOnly/ao_model.pkl")
+# scaler = joblib.load("./Models/AngularOnly/ao_scaler.pkl")
+# imputer = joblib.load("./Models/AngularOnly/ao_imputer.pkl")
+
+model = joblib.load("ao_model.pkl")
+scaler = joblib.load("ao_scaler.pkl")
+imputer = joblib.load("ao_imputer.pkl")
 
 sm = SharedMemory("img")
 

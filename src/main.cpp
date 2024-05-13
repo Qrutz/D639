@@ -295,7 +295,7 @@ int32_t main(int32_t argc, char **argv)
                         totalEntries++;
                     }
 
-                                        // write to file
+                    // write to file
                     outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "\n";
 
                     // check if the steering angle is within +-25% of the actual steering
@@ -316,6 +316,9 @@ int32_t main(int32_t argc, char **argv)
 
         std::cout << "Total entries: " << totalEntries << std::endl;
         std::cout << "Total within range: " << totalWithinRange << std::endl;
+        // print percentage of frames within range
+        float percentageWithinRange = (static_cast<float>(totalWithinRange) / totalEntries) * 100.0f;
+        std::cout << "Percentage of frames within range: " << percentageWithinRange << "%" << std::endl;
     }
 
     // Close the file

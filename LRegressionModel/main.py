@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.impute import SimpleImputer
@@ -42,13 +43,10 @@ def merge_dataframes(dataframes, merge_on):
 
 
 def train_model(combined_df):
-    """Train a linear regression model."""
+    """Train a Random Forest model."""
     # Normalize data for training/model preparation
     scaler = StandardScaler()
     features_to_scale = [
-        # "IRLeft_voltage",
-        # "IRRight_voltage",
-        # "groundSteering",
         "angularVelocityX",
         "angularVelocityY",
         "angularVelocityZ",
@@ -64,7 +62,7 @@ def train_model(combined_df):
     X = combined_df[features_to_scale]
     y = combined_df["groundSteering"]
 
-    # handle missing data in features
+    # Handle missing data in features
     imputer = SimpleImputer(strategy="mean")
     X = imputer.fit_transform(X)
 
@@ -73,13 +71,14 @@ def train_model(combined_df):
         X, y, test_size=0.2, random_state=42
     )
 
-    # Train the model
-    model = LinearRegression()
+    # Initialize and train the Random Forest model
+    model = RandomForestRegressor(
+        n_estimators=100, random_state=42
+    )  # You can adjust these hyperparameters
     model.fit(X_train, y_train)
 
     # Evaluate the model
     predictions = model.predict(X_test)
-
     mse = mean_squared_error(y_test, predictions)
     print(f"Mean squared error: {mse}")
 
@@ -196,9 +195,18 @@ def loadAllData(file_groups):
         )
         all_data_frames.append(preprocessed_data)
 
-    # save to csv
-    pd.concat(all_data_frames, ignore_index=True).to_csv("all_data.csv")
     return pd.concat(all_data_frames, ignore_index=True)
+
+
+def smooth_predictions(predictions, window_size=5):
+    """Apply a simple moving average to the predictions."""
+    predictions_df = pd.DataFrame(predictions, columns=["predicted_steering"])
+    predictions_df["smoothed"] = (
+        predictions_df["predicted_steering"]
+        .rolling(window=window_size, min_periods=1)
+        .mean()
+    )
+    return predictions_df
 
 
 if __name__ == "__main__":
@@ -240,6 +248,12 @@ if __name__ == "__main__":
             "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
             "CSV-Files/CID-140-recording-2020-03-18_145641-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
         ],
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
     ]
 
     # # Load all data
@@ -249,11 +263,11 @@ if __name__ == "__main__":
     [model, imputer, scaler] = train_model(TrainingData)
 
     # Save model
-    joblib.dump(model, "modelmultiple.pkl")
+    joblib.dump(model, "ao_model.pkl")
     # Save imputer
-    joblib.dump(imputer, "imputer.pkl")
+    joblib.dump(imputer, "ao_imputer.pkl")
     # Save scaler
-    joblib.dump(scaler, "scaler.pkl")
+    joblib.dump(scaler, "ao_scaler.pkl")
 
     # load the trained model
     model = joblib.load("modelmultiple.pkl")
@@ -290,39 +304,43 @@ if __name__ == "__main__":
     predictions["timestamp"] = Steering_new["timestamp"]
     predictions = predictions.dropna()
 
-    # plt.plot(
-    #     Steering_new["timestamp"], Steering_new["groundSteering"], label="Steering"
-    # )
-    # plt.plot(predictions["timestamp"], predictions[0], label="Predictions")
+    predictions_df = smooth_predictions(predictions, window_size=5)
 
-    # plot where the predictions is withing +-25% of the steering data so upper range is steering * 1.25 and lower range is steering * 0.75
-    plt.plot(
-        Steering_new["timestamp"],
-        Steering_new["groundSteering"],
-        label="Steering",
-        color="blue",
-    )
-    plt.plot(
-        predictions["timestamp"],
-        predictions[0],
-        label="Predictions",
-        color="red",
-    )
+# Plotting the original and smoothed predictions
+plt.figure(figsize=(12, 6))
+plt.plot(
+    Steering_new["timestamp"],
+    Steering_new["groundSteering"],
+    label="Actual Steering",
+    color="blue",
+)
+plt.plot(
+    predictions_df.index,
+    predictions_df["predicted_steering"],
+    label="Predicted Steering",
+    linestyle="--",
+    color="red",
+)
+plt.plot(
+    predictions_df.index,
+    predictions_df["smoothed"],
+    label="Smoothed Predictions",
+    color="green",
+)
 
-    plt.fill_between(
-        Steering_new["timestamp"],
-        Steering_new["groundSteering"] * 0.75,
-        Steering_new["groundSteering"] * 1.25,
-        color="gray",
-        alpha=0.5,
-    )
+# Fill between for ±25% range
+plt.fill_between(
+    Steering_new["timestamp"],
+    Steering_new["groundSteering"] * 0.75,
+    Steering_new["groundSteering"] * 1.25,
+    color="gray",
+    alpha=0.5,
+    label="±25% Range",
+)
 
-    plt.xlabel("Time")
-
-    plt.ylabel("Steering")
-
-    plt.legend()
-
-    plt.show()
-
-    print("done")
+plt.legend()
+plt.title("Comparison of Actual and Predicted Steering Angles with Smoothing")
+plt.xlabel("Timestamp")
+plt.ylabel("Steering Angle")
+plt.grid(True)
+plt.show()
