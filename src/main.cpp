@@ -39,14 +39,14 @@ int32_t main(int32_t argc, char **argv)
     // Write headers if the file is new or empty
     if (outputFile.tellp() == 0)
     {
-        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering\n";
     }
     else
     {
         // If the file is not empty, we need to clear it
         outputFile.close();
         outputFile.open("../steeringAngles.csv", std::ios::out | std::ios::trunc);
-        outputFile << "Timestamp, SteeringAngle, OriginalSteering, Within_25_percent?\n";
+        outputFile << "Timestamp, SteeringAngle, OriginalSteering\n";
     }
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
@@ -109,6 +109,9 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
+            // print opendlv::proxy::GroundSteeringRequest::ID()
+            std::cout << "opendlv::proxy::GroundSteeringRequest::ID() = " << opendlv::proxy::GroundSteeringRequest::ID() << std::endl;
+
             opendlv::proxy::VoltageReading vr;
             std::mutex vrMutex;
             auto onVoltageReading = [&vr, &vrMutex, &LeftIR, &RightIR](cluon::data::Envelope &&env)
@@ -142,6 +145,16 @@ int32_t main(int32_t argc, char **argv)
             };
 
             od4.dataTrigger(opendlv::proxy::AccelerationReading::ID(), onAccelerationReading);
+
+            SteeringCommand sc;
+            auto onPythonMessage = [&sc, &steeringAngle](cluon::data::Envelope &&env)
+            {
+                sc = cluon::extractMessage<SteeringCommand>(std::move(env));
+                std::cout << "Python Message: " << sc.steeringAngle() << std::endl;
+                steeringAngle = sc.steeringAngle();
+            };
+
+            od4.dataTrigger(SteeringCommand::ID(), onPythonMessage);
 
             // Open a file for writing
             // std::ofstream outputFile("output.txt");
@@ -236,16 +249,6 @@ int32_t main(int32_t argc, char **argv)
 
                 const double IR_THRESHOLD_CLOSE = 0.0075; // Example threshold needs calibration
 
-                // If our IR sensor get too close to either side, we need to turn a bit to avoid collision
-                if (RightIR < IR_THRESHOLD_CLOSE)
-                {
-                    steeringAngle -= 0.0035; // Steer left
-                }
-                else if (LeftIR < IR_THRESHOLD_CLOSE)
-                {
-                    steeringAngle += 0.0035; // Steer right
-                }
-
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
                 int64_t sampleTimePoint = cluon::time::toMicroseconds(ts.second);
@@ -279,15 +282,21 @@ int32_t main(int32_t argc, char **argv)
                     float upperBound = actualSteering * (float)1.25;
                     bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
 
-                    if (isWithinRange)
+                    if (actualSteering != 0.0)
                     {
-                        totalWithinRange++;
+                        std::cout << "group_16;" << ts_string << ";" << steeringAngle << std::endl;
+
+                        if (isWithinRange)
+                        {
+                            totalWithinRange++;
+                            // print within range frames
+                            std::cout << "total frames within range: " << totalWithinRange << " frames:" << totalEntries << "\n";
+                        }
+                        totalEntries++;
                     }
 
-                    totalEntries++;
-
-                    // write to file
-                    outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "," << isWithinRange << "\n";
+                                        // write to file
+                    outputFile << ts_string << "," << steeringAngle << "," << gsr.groundSteering() << "\n";
 
                     // check if the steering angle is within +-25% of the actual steering
                 }
