@@ -13,7 +13,7 @@ class AngleCalculator {
     private:
         cv::Point calculateCentroid(const std::vector<std::vector<cv::Point>>& contours, const cv::Point& imageCenter);
         float adjustSteering(float &newSteering, cv::Point& blueCentroid, cv::Point yellowCentroid, const cv::Point& imageCenter, const cv::Point& imageLeftThird, const cv::Point& imageRightThird, bool isClockwise);
-        float smoothSteering(float currentSteering, float newSteering, float smoothingFactor);
+        float smoothSteering(float currentSteering, float alpha);
         static constexpr float steeringSensitivity = 0.1f;  // Adjust sensitivity
         static constexpr float steeringThreshold = 0.05f;   // Minimum change required to adjust steering
 };

@@ -8,7 +8,7 @@ int iHighH = 135;
 int iLowS = 44; 
 int iHighS = 255;
 
-int iLowV = 43;
+int iLowV = 45;
 int iHighV = 255;
 
 int yellowLowH = 15;

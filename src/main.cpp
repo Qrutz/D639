@@ -83,9 +83,9 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
-            cv::namedWindow("Combined Color tracking", cv::WINDOW_AUTOSIZE);
-            cv::createTrackbar("maxContourArea", "Combined Color tracking", &maxContourArea, 2500);
-            cv::createTrackbar("minContourArea", "Combined Color tracking", &minContourArea, 2500);
+            //cv::namedWindow("Combined Color tracking", cv::WINDOW_AUTOSIZE);
+            //cv::createTrackbar("maxContourArea", "Combined Color tracking", &maxContourArea, 2500);
+            //cv::createTrackbar("minContourArea", "Combined Color tracking", &minContourArea, 2500);
 
 
             DirectionCalculator directionCalculator;
@@ -129,7 +129,7 @@ int32_t main(int32_t argc, char **argv)
                 }
 
                 // We start off by detecting if the track is moving in a clockwise or counter-clockwise direction.
-                if(frameCount % 15 == 0){
+                if(frameCount % 15 == 0 || frameCount < 10){
                     direction = directionCalculator.CalculateDirection(img, direction);
                     if(direction == -1){
                         std::cout << "Direction: Clockwise" << std::endl;
@@ -144,6 +144,7 @@ int32_t main(int32_t argc, char **argv)
                 // Crop bottom half. Only bottom 50% part will be used for processing and contour tracking.
                 cv::Rect roi(0, img.rows / 2, img.cols, img.rows / 2);
                 cv::Mat croppedImg = img(roi);
+
 
                 // inRange filters out blue colors. Use gaussian blur to smooth out image, and morphological operations
                 // Erode makes objects smaller but fills in the holes. Dilate does the opposite, so if you combine them
@@ -160,6 +161,7 @@ int32_t main(int32_t argc, char **argv)
                 //cv::Mat blueContourOutput = contourFinder.FindContours(blueThreshImg, img, minContourArea, maxContourArea);
 
                 // If clockwise map, blue cones on left side, yellow cones on right side.
+                // If counter-clockwise map, blue cones on right side, yellow cones on left side.
                 if (direction != 0) {
                     bool isClockwise = (direction == -1);
                     steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering);
@@ -180,16 +182,18 @@ int32_t main(int32_t argc, char **argv)
         {
             std::lock_guard<std::mutex> lck(gsrMutex);
             float actualSteering = gsr.groundSteering();  // Obtain the ground truth steering angle
+            float epsilon = 0.001f;  // Define a small epsilon value
 
-            // Check if the ground truth steering angle is not zero
-            if (actualSteering != 0.0f) {
+            // Check if the ground truth steering angle is not effectively zero
+            if (fabs(actualSteering) > epsilon)  {
                 // group_XY;sampleTimeStamp in microseconds;steeringWheelAngle
                 std::cout << "Actualy Steering : " << actualSteering << std::endl;
                 std::cout << "Calculated Angle : " << steeringWheelAngle << std::endl;
 
                 // Calculate the lower and upper bounds for the allowed steering range
-                float lowerBound = actualSteering * 0.75f;
-                float upperBound = actualSteering * 1.25f;
+                float lowerBound = std::min(actualSteering * 0.75f, actualSteering * 1.25f);
+                float upperBound = std::max(actualSteering * 0.75f, actualSteering * 1.25f);
+
 
                 // Check if the steeringWheelAngle is within the calculated range
                 bool isWithinRange = (steeringWheelAngle >= lowerBound) && (steeringWheelAngle <= upperBound);
@@ -203,8 +207,16 @@ int32_t main(int32_t argc, char **argv)
                 totalEntries++; // Increment the total number of entries checked
             } else {
                 // Output when skipping frames where the ground truth steering angle is zero
-                std::cout << "Skipping frame with zero ground steering angle." << std::endl;
-            }
+                std::cout << "Actualy Steering : " << actualSteering << std::endl;
+                std::cout << "Calculated Angle : " << steeringWheelAngle << std::endl;
+                std::cout << "Total within range: " << totalWithinRange << " / " << totalEntries << std::endl;
+                if (totalEntries > 0) {
+                    std::cout << "Percentage within range: " << (static_cast<float>(totalWithinRange) / totalEntries) * 100 << "%" << std::endl;
+                    } 
+                else {
+                    std::cout << "No entries to evaluate." << std::endl;
+                    }
+                }
         }
 
 
@@ -214,7 +226,7 @@ int32_t main(int32_t argc, char **argv)
                 if (VERBOSE)
                 {
 
-                    cv::imshow(sharedMemory->name().c_str(), img);
+                    //cv::imshow(sharedMemory->name().c_str(), img);
                     //cv::imshow("ResultImg", img);
                     //cv::imshow("Blue", blueContourOutput);
                     //cv::imshow("Yellow", yellowContourOutput);
