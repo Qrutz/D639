@@ -281,10 +281,9 @@ int32_t main(int32_t argc, char **argv)
                     float lowerBound = actualSteering * (float)0.75;
                     float upperBound = actualSteering * (float)1.25;
                     bool isWithinRange = (steeringAngle >= lowerBound) && (steeringAngle <= upperBound);
-
+                    std::cout << "group_16;" << ts_string << ";" << steeringAngle << std::endl;
                     if (actualSteering != 0.0)
                     {
-                        std::cout << "group_16;" << ts_string << ";" << steeringAngle << std::endl;
 
                         if (isWithinRange)
                         {

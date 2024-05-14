@@ -13,9 +13,14 @@ from pycluon import SharedMemory
 # scaler = joblib.load("./Models/AngularOnly/ao_scaler.pkl")
 # imputer = joblib.load("./Models/AngularOnly/ao_imputer.pkl")
 
-model = joblib.load("ao_model.pkl")
-scaler = joblib.load("ao_scaler.pkl")
-imputer = joblib.load("ao_imputer.pkl")
+# model = joblib.load("./Models/RFT_ANGULAR/ao_model.pkl")
+# scaler = joblib.load("./Models/RFT_ANGULAR/ao_scaler.pkl")
+# imputer = joblib.load("./Models/RFT_ANGULAR/ao_imputer.pkl")
+
+model = joblib.load("./ao_model.pkl")
+scaler = joblib.load("./ao_scaler.pkl")
+imputer = joblib.load("./ao_imputer.pkl")
+
 
 sm = SharedMemory("img")
 

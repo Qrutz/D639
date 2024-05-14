@@ -49,3 +49,4 @@ plt.text(
 # Display the plot
 plt.grid(True)
 plt.show()
+plt.close("all")
