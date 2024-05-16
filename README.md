@@ -43,7 +43,7 @@ Build ML runner container
 
 ```bash
 cd LRegressionModel
-docker build -f Dockerfile.pyth -t 2024-group-16-ml .
+docker build -f Dockerfile -t 2024-group-16-ml .
 ```
 
 Run the Docker container(s):
