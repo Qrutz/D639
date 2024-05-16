@@ -2,7 +2,7 @@ from pycluon.importer import import_odvd
 from pycluon import OD4Session, Envelope
 import time
 import joblib
-import numpy as np
+
 import pandas as pd
 import time
 
