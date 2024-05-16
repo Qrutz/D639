@@ -364,3 +364,8 @@ message opendlv.logic.cognition.GroundSteeringLimit [id = 1191] {
 message opendlv.logic.cognition.GroundSpeedLimit [id = 1192] {
   float speedLimit [id = 1];
 }
+
+
+message SteeringCommand [id = 1234] {
+    float steeringAngle [id = 1];
+}
