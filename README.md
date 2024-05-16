@@ -33,16 +33,27 @@ cd 2024-group-16
 
 ### Using Docker
 
-Build the Docker image:
+Build the Docker image(s):
 
 ```bash
 docker build -f Dockerfile -t 2024-group-16 .
 ```
 
-Run the Docker container:
+Build ML runner container
+
+```bash
+cd LRegressionModel
+docker build -f Dockerfile.pyth -t 2024-group-16-ml .
+```
+
+Run the Docker container(s):
 
 ```bash
 docker run --rm -ti --net=host --ipc=host -e DISPLAY=$DISPLAY -v /tmp:/tmp 2024-group-16:latest --cid=253 --name=img --width=640 --height=480 --verbose
+```
+
+```bash
+docker run --rm -ti --net=host --ipc=host -v /tmp:/tmp 2024-group-16-ml:latest
 ```
 
 ### For Local Development
