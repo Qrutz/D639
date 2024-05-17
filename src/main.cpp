@@ -158,18 +158,27 @@ int32_t main(int32_t argc, char **argv)
                 // We start off by detecting if the track is moving in a clockwise or counter-clockwise direction.
                 if (frameCount % 15 == 0 || frameCount < 10)
                 {
-                    direction = directionCalculator.CalculateDirection(img, direction);
+                    direction = directionCalculator.CalculateDirection(img, direction, VERBOSE);
                     if (direction == -1)
                     {
-                        std::cout << "Direction: Clockwise" << std::endl;
+                        if (VERBOSE)
+                        {
+                            std::cout << "Direction: Clockwise" << std::endl;
+                        }
                     }
                     else if (direction == 1)
                     {
-                        std::cout << "Direction: Counter-Clockwise" << std::endl;
+                        if (VERBOSE)
+                        {
+                            std::cout << "Direction: Counter-Clockwise" << std::endl;
+                        }
                     }
                     else
                     {
-                        std::cout << "Direction: No direction" << std::endl;
+                        if (VERBOSE)
+                        {
+                            std::cout << "Direction: No direction" << std::endl;
+                        }
                     }
                 }
                 // Crop bottom half. Only bottom 50% part will be used for processing and contour tracking.
@@ -181,8 +190,8 @@ int32_t main(int32_t argc, char **argv)
                 // it will make a nice end result
                 cv::cvtColor(croppedImg, hsvImg, CV_BGR2HSV);
 
-                cv::Mat blueThreshImg = colorSeparator.detectBlueColor(hsvImg);
-                cv::Mat yellowThreshImg = colorSeparator.detectYellowColor(hsvImg);
+                cv::Mat blueThreshImg = colorSeparator.detectBlueColor(hsvImg, VERBOSE);
+                cv::Mat yellowThreshImg = colorSeparator.detectYellowColor(hsvImg, VERBOSE);
 
                 yellowThreshImg = noiseRemover.RemoveNoise(yellowThreshImg);
                 blueThreshImg = noiseRemover.RemoveNoise(blueThreshImg);
@@ -201,7 +210,7 @@ int32_t main(int32_t argc, char **argv)
 
                 {
                     bool isClockwise = (direction == -1);
-                    steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering);
+                    steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering, VERBOSE);
                 }
 
                 // cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
@@ -239,7 +248,10 @@ int32_t main(int32_t argc, char **argv)
                         {
                             totalWithinRange++;
                             // print within range frames
-                            std::cout << "total frames within range: " << totalWithinRange << " frames:" << totalEntries << "\n";
+                            if (VERBOSE)
+                            {
+                                std::cout << "total frames within range: " << totalWithinRange << " frames:" << totalEntries << "\n";
+                            }
                         }
                         totalEntries++;
                     }

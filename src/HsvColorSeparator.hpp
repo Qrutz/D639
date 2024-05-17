@@ -4,11 +4,12 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-class HsvColorSeparator{
-    public:
+class HsvColorSeparator
+{
+public:
     HsvColorSeparator();
-    cv::Mat detectBlueColor(const cv::Mat &inputFrame);
-    cv::Mat detectYellowColor(const cv::Mat &inputFrame);
+    cv::Mat detectBlueColor(const cv::Mat &inputFrame, bool VERBOSE);
+    cv::Mat detectYellowColor(const cv::Mat &inputFrame, bool VERBOSE);
 };
 
 #endif
