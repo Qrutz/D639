@@ -3,3 +3,8 @@
 26.6272% 144821                 blue on right
 5% 145641                       blue is on left
 3% 145233                       blue is on left
+
+
+
+043 34.18 full dataset
+043 35.814 counter dataset

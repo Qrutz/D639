@@ -18,7 +18,7 @@ def load_and_clean(filepath, columns):
         unit="us",
     )
 
-    df["timestamp"] = df["timestamp"].dt.round("0.7s")
+    df["timestamp"] = df["timestamp"].dt.round("0.5s")
 
     return df
 
@@ -44,7 +44,7 @@ def merge_dataframes(dataframes, merge_on):
 
 
 def train_model(combined_df):
-    """Train a Random Forest model."""
+    """Train a Random Forest model with simplified Grid Search to fit within time constraints."""
     # Normalize data for training/model preparation
     scaler = StandardScaler()
     features_to_scale = [
@@ -53,13 +53,9 @@ def train_model(combined_df):
         "angularVelocityZ",
     ]
 
-    print(combined_df[features_to_scale])
-
     combined_df[features_to_scale] = scaler.fit_transform(
         combined_df[features_to_scale]
     )
-
-    # Separate features and target variable
     X = combined_df[features_to_scale]
     y = combined_df["groundSteering"]
 
@@ -67,23 +63,41 @@ def train_model(combined_df):
     imputer = SimpleImputer(strategy="mean")
     X = imputer.fit_transform(X)
 
-    # Split data into training and test sets
+    # Use a subset of data to speed up the grid search
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
-    )
+    )  # Reducing training data size
 
-    # Initialize and train the Random Forest model
-    model = RandomForestRegressor(
-        n_estimators=100, random_state=42
-    )  # You can adjust these hyperparameters
-    model.fit(X_train, y_train)
+    # Simplified grid
+    param_grid = {
+        "n_estimators": [100, 200],  # Reduced number of options
+        "max_depth": [10, 20],  # Fewer depths
+        "min_samples_split": [2, 10],
+        "min_samples_leaf": [1, 4],
+        "max_features": ["auto", "sqrt"],
+    }
+
+    # Reduced the number of cross-validation folds to speed up the process
+    grid_search = GridSearchCV(
+        estimator=RandomForestRegressor(random_state=42),
+        param_grid=param_grid,
+        cv=5,
+        scoring="neg_mean_squared_error",
+        n_jobs=-1,
+        verbose=2,
+    )
+    grid_search.fit(X_train, y_train)
+
+    # Get the best estimator
+    model = grid_search.best_estimator_
 
     # Evaluate the model
     predictions = model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
-    print(f"Mean squared error: {mse}")
+    print(f"Best model parameters: {grid_search.best_params_}")
+    print(f"Mean squared error of the best model: {mse}")
 
-    return model, imputer, scaler
+    return model, imputer, scaler, grid_search.best_params_
 
 
 # data[0] = "CSV-Files/REC0 /opendlv.proxy.VoltageReading-1.csv"
@@ -135,9 +149,6 @@ def preprocess_data(
 
     # Sort dataframe by timestamp if necessary
     combined_df.sort_values(by=merge_on, inplace=True)
-
-    # save the combined data
-    combined_df.to_csv("combined_data.csv")
 
     return combined_df
 
@@ -212,25 +223,13 @@ def smooth_predictions(predictions, window_size=5):
 
 if __name__ == "__main__":
 
-    RecordingToPredict = [
-        "CSV-Files/CID-140-recording-2020-03-18_150001-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
-    ]
-
-    # TrainingData = preprocess_data(
-    #     voltageReading1="CSV-Files/REC0/opendlv.proxy.VoltageReading-1.csv",
-    #     voltageReading3="CSV-Files/REC0/opendlv.proxy.VoltageReading-3.csv",
-    #     GroundSteering="CSV-Files/REC0/opendlv.proxy.GroundSteeringRequest-0.csv",
-    #     AngularVelocityReading="CSV-Files/REC0/opendlv.proxy.AngularVelocityReading-0.csv",
-    #     for_training=True,
-    # )
-
     file_paths = [
-        # [
-        #     "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
-        #     "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
-        #     "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
-        #     "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
-        # ],
+        [
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
+            "CSV-Files/CID-140-recording-2020-03-18_144821-selection.rec.csv/opendlv.proxy.AngularVelocityReading-0.csv",
+        ],
         [
             "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.VoltageReading-1.csv",
             "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.VoltageReading-3.csv",
@@ -261,7 +260,7 @@ if __name__ == "__main__":
     TrainingData = loadAllData(file_paths)
 
     # Train model
-    [model, imputer, scaler] = train_model(TrainingData)
+    [model, imputer, scaler, bestparams] = train_model(TrainingData)
 
     # Save model
     joblib.dump(model, "ao_model.pkl")
@@ -269,82 +268,3 @@ if __name__ == "__main__":
     joblib.dump(imputer, "ao_imputer.pkl")
     # Save scaler
     joblib.dump(scaler, "ao_scaler.pkl")
-
-    # load the trained model
-    model = joblib.load("modelmultiple.pkl")
-    imputer = joblib.load("imputer.pkl")
-    scaler = joblib.load("scaler.pkl")
-
-    # Load and preprocess new data
-    PredictionData = preprocess_prediction_data(
-        RecordingToPredict,
-        columns=["angularVelocityX", "angularVelocityY", "angularVelocityZ"],
-        scaler=scaler,
-        imputer=imputer,
-    )
-
-    predictions = test_model(model, PredictionData)
-
-    # save the predictions
-    pd.DataFrame(predictions).to_csv("predictions.csv")
-
-    # plot the original steering data and the predictions
-    import matplotlib.pyplot as plt
-
-    Steering_new = load_and_clean(
-        "CSV-Files/CID-140-recording-2020-03-18_145043-selection.rec.csv/opendlv.proxy.GroundSteeringRequest-0.csv",
-        columns=[
-            "sampleTimeStamp.seconds",
-            "sampleTimeStamp.microseconds",
-            "groundSteering",
-        ],
-    )
-
-    # we only care about the predictions where we have steering data so only plot the predictions where we have steering data
-    predictions = pd.DataFrame(predictions)
-    predictions["timestamp"] = Steering_new["timestamp"]
-    predictions = predictions.dropna()
-
-    predictions_df = smooth_predictions(predictions, window_size=5)
-
-# Plotting the original and smoothed predictions
-plt.figure(figsize=(12, 6))
-plt.plot(
-    Steering_new["timestamp"],
-    Steering_new["groundSteering"],
-    label="Actual Steering",
-    color="blue",
-)
-plt.plot(
-    predictions_df.index,
-    predictions_df["predicted_steering"],
-    label="Predicted Steering",
-    linestyle="--",
-    color="red",
-)
-plt.plot(
-    predictions_df.index,
-    predictions_df["smoothed"],
-    label="Smoothed Predictions",
-    color="green",
-)
-
-# Fill between for ±25% range
-plt.fill_between(
-    Steering_new["timestamp"],
-    Steering_new["groundSteering"] * 0.75,
-    Steering_new["groundSteering"] * 1.25,
-    color="gray",
-    alpha=0.5,
-    label="±25% Range",
-)
-
-plt.legend()
-plt.title("Comparison of Actual and Predicted Steering Angles with Smoothing")
-plt.xlabel("Timestamp")
-plt.ylabel("Steering Angle")
-plt.grid(True)
-plt.show()
-
-plt.waitforbuttonpress(0)
-plt.close("all")
