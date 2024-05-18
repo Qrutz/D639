@@ -8,6 +8,31 @@ To build and run this project using Docker, you will need:
 
 - Docker installed on your machine. Visit the [official Docker documentation](https://docs.docker.com/get-docker/) to get started.
 
+## Setup and Build Instructions
+
+Clone this repository to your local machine:
+
+```bash
+git clone git@git.chalmers.se:courses/dit638/students/2024-group-16.git
+cd 2024-group-16
+```
+
+### Using Docker
+
+Build the Docker image:
+
+```bash
+docker build -f Dockerfile -t 2024-group-16 .
+```
+
+Run the Docker container:
+
+```bash
+docker run --rm -ti --net=host --ipc=host -e DISPLAY=$DISPLAY -v /tmp:/tmp 2024-group-16:latest --cid=253 --name=img --width=640 --height=480 --verbose
+```
+
+append verbose for debbuging mode
+
 ### For Local Development
 
 To build and run this project on your local machine without Docker, you will need:
@@ -21,42 +46,6 @@ On Ubuntu, you can install these with the following commands:
 sudo apt-get update
 sudo apt-get install -y build-essential cmake
 ```
-
-## Setup and Build Instructions
-
-Clone this repository to your local machine:
-
-```bash
-git clone git@git.chalmers.se:courses/dit638/students/2024-group-16.git
-cd 2024-group-16
-```
-
-### Using Docker
-
-Build the Docker image(s):
-
-```bash
-docker build -f Dockerfile -t 2024-group-16 .
-```
-
-Build ML runner container
-
-```bash
-cd LRegressionModel
-docker build -t 2024-group-16-ml .
-```
-
-Run the Docker container(s):
-
-```bash
-docker run --rm -ti --net=host --ipc=host -e DISPLAY=$DISPLAY -v /tmp:/tmp 2024-group-16:latest --cid=253 --name=img --width=640 --height=480 --verbose
-```
-
-```bash
-docker run --rm -ti --net=host --ipc=host -v /tmp:/tmp 2024-group-16-ml:latest
-```
-
-### For Local Development
 
 Create a build directory and navigate to it:
 
