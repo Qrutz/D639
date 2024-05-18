@@ -41,10 +41,12 @@ RUN mkdir build && \
 
 
 # Second stage for packaging the software into a software bundle:
+# Start from Ubuntu 18.04
 FROM ubuntu:18.04
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
@@ -55,7 +57,50 @@ RUN apt-get install -y --no-install-recommends \
     libopencv-highgui3.2 \
     libopencv-imgproc3.2 
 
+
+# Update and install necessary packages
+RUN apt-get update && \
+    apt-get install -y software-properties-common wget curl ca-certificates && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y python3.8 python3.8-distutils python3.8-dev && \
+    update-ca-certificates
+
+# Install pip using curl and Python 3.8
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.8
+
+# Set Python 3.8 as the default Python version
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+
+# Check Python and Pip versions
+RUN python3 -m pip --version && python3 --version
+
+# install packages
+RUN pip install --no-cache-dir joblib pycluon pandas scikit-learn
+
+# copy the compiled sources from the first stage
 WORKDIR /usr/bin
 COPY --from=builder /tmp/bin/main .
-# This is the entrypoint when starting the Docker container; hence, this Docker image is automatically starting our software on its creation
-ENTRYPOINT ["/usr/bin/main"]
+
+# Copy LRegressionModel directory from CURRENT directory to the container
+COPY LRegressionModel /usr/bin/LRegressionModel
+
+
+# create a bash script to run the python software in LRegressionModel Directory in the background (needs to be started first), then run the compiled C++ software
+# Create a bash script to run the python software in the background, then run the compiled C++ software
+# remember that the compiled c++ software needs to take argguments from docke rrun command
+RUN echo "#!/bin/bash" > run.sh && \
+    echo "cd /usr/bin/LRegressionModel && python3 cluontest.py > /dev/null 2>&1 &" >> run.sh && \
+    echo "sleep 5" >> run.sh && \
+    echo "cd /usr/bin && ./main \$@" >> run.sh && \
+    chmod +x run.sh
+
+# Set the working directory in the container
+RUN ls -la
+
+# Set the working directory in the container
+
+
+# # Run the bash script
+ENTRYPOINT ["/usr/bin/run.sh"]
+CMD ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]

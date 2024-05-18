@@ -17,9 +17,13 @@ from pycluon import SharedMemory
 # scaler = joblib.load("./Models/RFT_ANGULAR/ao_scaler.pkl")
 # imputer = joblib.load("./Models/RFT_ANGULAR/ao_imputer.pkl")
 
-model = joblib.load("./ao_model.pkl")
-scaler = joblib.load("./ao_scaler.pkl")
-imputer = joblib.load("./ao_imputer.pkl")
+# model = joblib.load("./ao_model.pkl")
+# scaler = joblib.load("./ao_scaler.pkl")
+# imputer = joblib.load("./ao_imputer.pkl")
+
+model = joblib.load("./Models/RFT_GRIDSEARCH/ao_model.pkl")
+scaler = joblib.load("./Models/RFT_GRIDSEARCH/ao_scaler.pkl")
+imputer = joblib.load("./Models/RFT_GRIDSEARCH/ao_imputer.pkl")
 
 
 sm = SharedMemory("img")
