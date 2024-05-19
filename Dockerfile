@@ -1,9 +1,23 @@
-# First stage for building the software
-FROM --platform=$BUILDPLATFORM ubuntu:18.04 as builder
+# Copyright (C) 2020  Christian Berger
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# First stage for building the software:
+FROM ubuntu:18.04 as builder
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
-ARG TARGETPLATFORM
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # Upgrade the Ubuntu 18.04 LTS base image
 RUN apt-get update -y && \
@@ -25,92 +39,24 @@ RUN mkdir build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp .. && \
     make && make install
 
-# Second stage for packaging the software into a software bundle
-FROM --platform=$TARGETPLATFORM ubuntu:18.04
+
+# Second stage for packaging the software into a software bundle:
+FROM ubuntu:18.04
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
-ARG TARGETPLATFORM
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
-# Install required packages
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get dist-upgrade -y && \
-    apt-get install -y --no-install-recommends \
+    apt-get dist-upgrade -y
+
+RUN apt-get install -y --no-install-recommends \
     libopencv-core3.2 \
     libopencv-highgui3.2 \
-    libopencv-imgproc3.2 \
-    software-properties-common \
-    build-essential \
-    python3.7 \
-    python3.7-dev \
-    python3.7-distutils \
-    python3-opencv \
-    python3-protobuf \
-    protobuf-compiler \
-    git \
-    make \
-    wget \
-    libopenblas-dev \
-    liblapack-dev \
-    gfortran && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    libopencv-imgproc3.2 
 
-
-# Add the libcluon PPA and install libcluon
-RUN add-apt-repository ppa:chrberger/libcluon && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libcluon && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-
-# Fix for 'apt_pkg' module issue
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
-    ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-x86_64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true; \
-    elif [ "$(uname -m)" = "aarch64" ]; then \
-    ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-aarch64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true; \
-    fi
-
-# Use Python 3.7 as the default python3
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
-
-# Install pip for Python 3.7
-RUN wget https://bootstrap.pypa.io/get-pip.py && python3.7 get-pip.py && rm get-pip.py
-
-RUN python3 -m pip install --upgrade pip setuptools wheel
-
-# Install specific versions of numpy and scipy from pre-built binaries for compatibility with both ARM and x86
-RUN pip3 install --no-cache-dir numpy==1.19.5 scipy==1.5.4
-
-# Install scikit-learn with the prefer-binary flag and specific version
-RUN pip3 install --no-cache-dir --prefer-binary scikit-learn==0.24.2
-
-
-# Copy the compiled sources from the first stage
 WORKDIR /usr/bin
 COPY --from=builder /tmp/bin/main .
+# This is the entrypoint when starting the Docker container; hence, this Docker image is automatically starting our software on its creation
+ENTRYPOINT ["/usr/bin/main"]
 
-# Copy LRegressionModel directory from CURRENT directory to the container
-COPY tempML /usr/bin/tempML
-
-WORKDIR /usr/bin/tempML
-
-RUN make
-
-WORKDIR /usr/bin
-
-# Create a bash script to run the python software in the background, then run the compiled C++ software
-RUN echo "#!/bin/bash" > run.sh && \
-    echo "cd /usr/bin/tempML && python3 receiveEnvelopes.py > /dev/null 2>&1 &" >> run.sh && \
-    echo "cd /usr/bin && ./main \$@" >> run.sh && \
-    chmod +x run.sh
-
-# Set the working directory in the container
-RUN ls -la
-
-# Run the bash script
-ENTRYPOINT ["/usr/bin/run.sh"]
-CMD ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
