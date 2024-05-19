@@ -1,7 +1,8 @@
 # First stage for building the software
-FROM ubuntu:18.04 as builder
+FROM --platform=$BUILDPLATFORM ubuntu:18.04 as builder
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
+ARG TARGETPLATFORM
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Upgrade the Ubuntu 18.04 LTS base image
@@ -25,9 +26,10 @@ RUN mkdir build && \
     make && make install
 
 # Second stage for packaging the software into a software bundle
-FROM arm64v8/ubuntu:18.04 as runtime
+FROM --platform=$TARGETPLATFORM ubuntu:18.04
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
+ARG TARGETPLATFORM
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
@@ -66,7 +68,11 @@ RUN add-apt-repository ppa:chrberger/libcluon && \
 
 
 # Fix for 'apt_pkg' module issue
-RUN ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-aarch64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+    ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-x86_64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true; \
+    elif [ "$(uname -m)" = "aarch64" ]; then \
+    ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-aarch64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true; \
+    fi
 
 # Use Python 3.7 as the default python3
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
@@ -76,7 +82,7 @@ RUN wget https://bootstrap.pypa.io/get-pip.py && python3.7 get-pip.py && rm get-
 
 RUN python3 -m pip install --upgrade pip setuptools wheel
 
-# Install specific versions of numpy and scipy from pre-built binaries for compatibility with ARM
+# Install specific versions of numpy and scipy from pre-built binaries for compatibility with both ARM and x86
 RUN pip3 install --no-cache-dir numpy==1.19.5 scipy==1.5.4
 
 # Install scikit-learn with the prefer-binary flag and specific version
