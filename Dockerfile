@@ -57,41 +57,54 @@ RUN apt-get install -y --no-install-recommends \
     libopencv-highgui3.2 \
     libopencv-imgproc3.2 
 
-
-# Update and install necessary packages
 RUN apt-get update && \
-    apt-get install -y software-properties-common wget curl ca-certificates && \
-    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y --no-install-recommends \
+    software-properties-common \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-numpy \
+    python3-opencv \
+    python3-protobuf \
+    protobuf-compiler \
+    git \
+    make \
+    wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add the libcluon PPA and install libcluon
+RUN add-apt-repository ppa:chrberger/libcluon && \
     apt-get update && \
-    apt-get install -y python3.8 python3.8-distutils python3.8-dev && \
-    update-ca-certificates
+    apt-get install -y --no-install-recommends \
+    libcluon && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install pip using curl and Python 3.8
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.8
-
-# Set Python 3.8 as the default Python version
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
-
-# Check Python and Pip versions
-RUN python3 -m pip --version && python3 --version
 
 # install packages
-RUN pip install --no-cache-dir joblib pycluon pandas scikit-learn
+RUN pip3 install --no-cache-dir joblib pandas scikit-learn
 
 # copy the compiled sources from the first stage
 WORKDIR /usr/bin
 COPY --from=builder /tmp/bin/main .
 
 # Copy LRegressionModel directory from CURRENT directory to the container
-COPY LRegressionModel /usr/bin/LRegressionModel
+COPY tempML /usr/bin/tempML
 
+WORKDIR /usr/bin/tempML
+
+RUN make
+
+WORKDIR /usr/bin
 
 # create a bash script to run the python software in LRegressionModel Directory in the background (needs to be started first), then run the compiled C++ software
 # Create a bash script to run the python software in the background, then run the compiled C++ software
 # remember that the compiled c++ software needs to take argguments from docke rrun command
 RUN echo "#!/bin/bash" > run.sh && \
-    echo "cd /usr/bin/LRegressionModel && python3 cluontest.py > /dev/null 2>&1 &" >> run.sh && \
-    echo "sleep 5" >> run.sh && \
+    echo "cd /usr/bin/tempML && python3 receiveEnvelopes.py > /dev/null 2>&1 &" >> run.sh && \
+    # echo "sleep 5" >> run.sh && \
     echo "cd /usr/bin && ./main \$@" >> run.sh && \
     chmod +x run.sh
 
