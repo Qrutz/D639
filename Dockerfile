@@ -83,8 +83,15 @@ RUN add-apt-repository ppa:chrberger/libcluon && \
     rm -rf /var/lib/apt/lists/*
 
 
-# install packages
-RUN pip3 install --no-cache-dir joblib pandas scikit-learn
+RUN python3 -m pip install --upgrade pip setuptools wheel
+
+RUN pip3 install --no-cache-dir joblib==1.1.1
+
+# Install pandas with the prefer-binary flag
+RUN pip3 install --no-cache-dir --prefer-binary pandas==1.1.5
+
+RUN pip3 install --no-cache-dir --prefer-binary scikit-learn==0.24.2
+
 
 # copy the compiled sources from the first stage
 WORKDIR /usr/bin
