@@ -1,8 +1,8 @@
-# First stage for building the software:
+# First stage for building the software
 FROM ubuntu:18.04 as builder
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Upgrade the Ubuntu 18.04 LTS base image
 RUN apt-get update -y && \
@@ -24,24 +24,20 @@ RUN mkdir build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp .. && \
     make && make install
 
-# Second stage for packaging the software into a software bundle:
-# Start from Ubuntu 18.04
-FROM ubuntu:18.04
+# Second stage for packaging the software into a software bundle
+FROM arm64v8/ubuntu:18.04 as runtime
 MAINTAINER Christian Berger "christian.berger@gu.se"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install required packages
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get dist-upgrade -y
-
-RUN apt-get install -y --no-install-recommends \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends \
     libopencv-core3.2 \
     libopencv-highgui3.2 \
-    libopencv-imgproc3.2
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    libopencv-imgproc3.2 \
     software-properties-common \
     build-essential \
     python3.7 \
@@ -59,6 +55,16 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+
+# Add the libcluon PPA and install libcluon
+RUN add-apt-repository ppa:chrberger/libcluon && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libcluon && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
 # Fix for 'apt_pkg' module issue
 RUN ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-36m-aarch64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.so || true
 
@@ -70,16 +76,12 @@ RUN wget https://bootstrap.pypa.io/get-pip.py && python3.7 get-pip.py && rm get-
 
 RUN python3 -m pip install --upgrade pip setuptools wheel
 
-RUN pip3 install --no-cache-dir joblib==1.1.1
-
 # Install specific versions of numpy and scipy from pre-built binaries for compatibility with ARM
 RUN pip3 install --no-cache-dir numpy==1.19.5 scipy==1.5.4
 
 # Install scikit-learn with the prefer-binary flag and specific version
 RUN pip3 install --no-cache-dir --prefer-binary scikit-learn==0.24.2
 
-# Install pandas with the prefer-binary flag
-RUN pip3 install --no-cache-dir --prefer-binary pandas==1.1.5
 
 # Copy the compiled sources from the first stage
 WORKDIR /usr/bin
