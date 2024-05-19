@@ -59,3 +59,4 @@ WORKDIR /usr/bin
 COPY --from=builder /tmp/bin/main .
 # This is the entrypoint when starting the Docker container; hence, this Docker image is automatically starting our software on its creation
 ENTRYPOINT ["/usr/bin/main"]
+

@@ -8,20 +8,6 @@ To build and run this project using Docker, you will need:
 
 - Docker installed on your machine. Visit the [official Docker documentation](https://docs.docker.com/get-docker/) to get started.
 
-### For Local Development
-
-To build and run this project on your local machine without Docker, you will need:
-
-- CMake: For generating makefiles and managing the build process.
-- A C++ compiler (e.g., GCC or Clang) and `build-essential` package on Linux for compiling the project.
-
-On Ubuntu, you can install these with the following commands:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential cmake
-```
-
 ## Setup and Build Instructions
 
 Clone this repository to your local machine:
@@ -45,7 +31,21 @@ Run the Docker container:
 docker run --rm -ti --net=host --ipc=host -e DISPLAY=$DISPLAY -v /tmp:/tmp 2024-group-16:latest --cid=253 --name=img --width=640 --height=480 --verbose
 ```
 
+append verbose for debbuging mode
+
 ### For Local Development
+
+To build and run this project on your local machine without Docker, you will need:
+
+- CMake: For generating makefiles and managing the build process.
+- A C++ compiler (e.g., GCC or Clang) and `build-essential` package on Linux for compiling the project.
+
+On Ubuntu, you can install these with the following commands:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential cmake
+```
 
 Create a build directory and navigate to it:
 
