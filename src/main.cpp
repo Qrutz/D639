@@ -108,14 +108,15 @@ int32_t main(int32_t argc, char **argv)
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
             // Revieve incoming steering commands from the ML model, and update the steering angle
-            SteeringCommand sc;
-            auto onPythonMessage = [&sc, &MLSteeringAngle](cluon::data::Envelope &&env)
-            {
-                sc = cluon::extractMessage<SteeringCommand>(std::move(env));
-                MLSteeringAngle = sc.steeringAngle();
-            };
+            // SteeringCommand sc;
+            // auto onPythonMessage = [&sc, &MLSteeringAngle](cluon::data::Envelope &&env)
+            // {
+            //     sc = cluon::extractMessage<SteeringCommand>(std::move(env));
+            //     MLSteeringAngle = sc.steeringAngle();
+            //     std::cout << "lambda: steeringAngle = " << sc.steeringAngle() << std::endl;
+            // };
 
-            od4.dataTrigger(SteeringCommand::ID(), onPythonMessage);
+            // od4.dataTrigger(SteeringCommand::ID(), onPythonMessage);
 
             // cv::namedWindow("Combined Color tracking", cv::WINDOW_AUTOSIZE);
             // cv::createTrackbar("maxContourArea", "Combined Color tracking", &maxContourArea, 2500);
@@ -130,7 +131,6 @@ int32_t main(int32_t argc, char **argv)
             const float maxSteering = 0.3f;
             const float minSteering = -0.3f;
             int frameCount = 0;
-            int direction = 0; // -1 for clockwise, 1 for counter-clockwise
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning())
@@ -201,13 +201,9 @@ int32_t main(int32_t argc, char **argv)
 
                 // If clockwise map, blue cones on left side, yellow cones on right side.
                 // If counter-clockwise map, blue cones on right side, yellow cones on left side.
-                if (direction == 1)
-                {
-                    // use ml steering angle
-                    steeringWheelAngle = MLSteeringAngle;
-                }
-                else
-
+                // If clockwise map, blue cones on left side, yellow cones on right side.
+                // If counter-clockwise map, blue cones on right side, yellow cones on left side.
+                if (direction != 0)
                 {
                     bool isClockwise = (direction == -1);
                     steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering, VERBOSE);
