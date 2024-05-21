@@ -35,12 +35,13 @@
 #include <queue>
 #include <condition_variable>
 #include <csignal>
+#include <atomic>
 
 std::mutex scMutex;
 std::queue<SteeringCommand> scQueue;
 std::condition_variable scCondition;
 float MLSteeringAngle = 0.0f;
-volatile std::sig_atomic_t gRunning = 1;
+std::atomic<bool> gRunning{true};
 
 void processSteeringCommands()
 {
@@ -48,7 +49,7 @@ void processSteeringCommands()
     {
         std::unique_lock<std::mutex> lock(scMutex);
         scCondition.wait(lock, []
-                         { return !scQueue.empty(); });
+                         { return !scQueue.empty() || !gRunning; });
 
         while (!scQueue.empty())
         {
@@ -66,12 +67,16 @@ void processSteeringCommands()
 
 void signalHandler(int signal)
 {
-    gRunning = 0;
+    gRunning = false;
+    scCondition.notify_all(); // Notify all waiting threads to ensure they wake up and exit
 }
 
 int32_t main(int32_t argc, char **argv)
 {
+    // Register signal handler for SIGINT, SIGTERM, and SIGTSTP
     std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+    std::signal(SIGTSTP, signalHandler);
 
     int32_t retCode{1};
 
@@ -173,11 +178,9 @@ int32_t main(int32_t argc, char **argv)
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning() && gRunning)
             {
-
                 frameCount++; // Count the number of frames processed.
 
                 // OpenCV data structure to hold an image.
-
                 cv::Mat img;
                 cv::Mat hsvImg; // HSV Image
                 cv::Mat finalThresh;
@@ -242,7 +245,6 @@ int32_t main(int32_t argc, char **argv)
                     steeringWheelAngle = MLSteeringAngle;
                 }
                 else
-
                 {
                     bool isClockwise = (direction == -1);
                     steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering, VERBOSE);
@@ -268,7 +270,6 @@ int32_t main(int32_t argc, char **argv)
                     std::cout << "group_16;" << ts_string << ";" << steeringWheelAngle << std::endl;
                     if (actualSteering != 0.0)
                     {
-
                         if (isWithinRange)
                         {
                             totalWithinRange++;
