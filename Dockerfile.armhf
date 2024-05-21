@@ -109,4 +109,4 @@ RUN ls -la
 
 # Run the bash script
 ENTRYPOINT ["/usr/bin/run.sh"]
-CMD ["--ipc=host,--net=host","--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
+CMD ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
