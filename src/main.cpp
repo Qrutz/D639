@@ -18,8 +18,6 @@
 // Include the single-file, header-only middleware libcluon to create high-performance microservices
 #include "cluon-complete.hpp"
 // Include the OpenDLV Standard Message Set that contains messages that are usually exchanged for automotive or robotic applications
-
-// Include the OpenDLV Standard Message Set that contains messages that are usually exchanged for automotive or robotic applications
 #include "opendlv-standard-message-set.hpp"
 
 // Include the GUI and image processing header files from OpenCV
@@ -33,12 +31,42 @@
 #include "AngleCalculator.hpp"
 #include "CommonDefs.hpp"
 
+#include <thread>
+#include <queue>
+#include <condition_variable>
+
+std::mutex scMutex;
+std::queue<SteeringCommand> scQueue;
+std::condition_variable scCondition;
+float MLSteeringAngle = 0.0f;
+
+void processSteeringCommands()
+{
+    while (true)
+    {
+        std::unique_lock<std::mutex> lock(scMutex);
+        scCondition.wait(lock, []
+                         { return !scQueue.empty(); });
+
+        while (!scQueue.empty())
+        {
+            SteeringCommand sc = scQueue.front();
+            scQueue.pop();
+            lock.unlock();
+
+            // Process the steering command
+            MLSteeringAngle = sc.steeringAngle();
+
+            lock.lock();
+        }
+    }
+}
+
 int32_t main(int32_t argc, char **argv)
 {
     int32_t retCode{1};
 
     float steeringWheelAngle = 0.0f;
-    float MLSteeringAngle = 0.0f;
     int direction = 0; // -1 for clockwise, 1 for counter-clockwise
 
     // For TESTING STUFF
@@ -91,7 +119,7 @@ int32_t main(int32_t argc, char **argv)
             std::clog << argv[0] << ": Attached to shared memory '" << sharedMemory->name() << " (" << sharedMemory->size() << " bytes)." << std::endl;
 
             // Interface to a running OpenDaVINCI session where network messages are exchanged.
-            // The instance od4 alblueLowS you to send and receive messages.
+            // The instance od4 allows you to send and receive messages.
             cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]))};
 
             opendlv::proxy::GroundSteeringRequest gsr;
@@ -107,19 +135,21 @@ int32_t main(int32_t argc, char **argv)
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
-            // Revieve incoming steering commands from the ML model, and update the steering angle
-            SteeringCommand sc;
-            auto onPythonMessage = [&sc, &MLSteeringAngle](cluon::data::Envelope &&env)
+            // Launch a separate thread to process steering commands
+            std::thread processingThread(processSteeringCommands);
+
+            // Receive incoming steering commands from the ML model, and update the steering angle
+            auto onPythonMessage = [](cluon::data::Envelope &&env)
             {
-                sc = cluon::extractMessage<SteeringCommand>(std::move(env));
-                MLSteeringAngle = sc.steeringAngle();
+                SteeringCommand sc = cluon::extractMessage<SteeringCommand>(std::move(env));
+                {
+                    std::lock_guard<std::mutex> lock(scMutex);
+                    scQueue.push(sc);
+                }
+                scCondition.notify_one();
             };
 
             od4.dataTrigger(SteeringCommand::ID(), onPythonMessage);
-
-            // cv::namedWindow("Combined Color tracking", cv::WINDOW_AUTOSIZE);
-            // cv::createTrackbar("maxContourArea", "Combined Color tracking", &maxContourArea, 2500);
-            // cv::createTrackbar("minContourArea", "Combined Color tracking", &minContourArea, 2500);
 
             DirectionCalculator directionCalculator;
             AngleCalculator angleCalculator;
@@ -195,9 +225,6 @@ int32_t main(int32_t argc, char **argv)
                 yellowThreshImg = noiseRemover.RemoveNoise(yellowThreshImg);
                 blueThreshImg = noiseRemover.RemoveNoise(blueThreshImg);
 
-                // cv::Mat yellowContourOutput = contourFinder.FindContours(yellowThreshImg, img, minContourArea, maxContourArea);
-                // cv::Mat blueContourOutput = contourFinder.FindContours(blueThreshImg, img, minContourArea, maxContourArea);
-
                 // If clockwise map, blue cones on left side, yellow cones on right side.
                 // If counter-clockwise map, blue cones on right side, yellow cones on left side.
                 if (direction == 1)
@@ -211,16 +238,6 @@ int32_t main(int32_t argc, char **argv)
                     bool isClockwise = (direction == -1);
                     steeringWheelAngle = angleCalculator.CalculateSteeringAngle(yellowThreshImg, blueThreshImg, steeringWheelAngle, isClockwise, maxSteering, minSteering, VERBOSE);
                 }
-
-                // cv::bitwise_or(blueContourOutput, yellowContourOutput, finalThresh);
-
-                // Now we can combine the contours with the original picture. The reason for doing this is to eliminate the noise
-                // in the top part of the picture, and the contour processing is only done on 50% of the original image, which should
-                // increase performance.
-                // cv::Mat finalOutput;
-                // cv::addWeighted(img, 1.0, finalThresh, 1.0, 0.0, finalOutput);
-
-                // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
 
                 std::pair<bool, cluon::data::TimeStamp> ts = sharedMemory->getTimeStamp();
 
@@ -273,6 +290,9 @@ int32_t main(int32_t argc, char **argv)
                     cv::waitKey(1);
                 }
             }
+
+            // Ensure to join the thread before exiting
+            processingThread.join();
         }
         retCode = 0;
 
