@@ -78,6 +78,9 @@ RUN python3 -m pip install --upgrade pip setuptools wheel
 # Install specific versions of numpy and scipy from pre-built binaries for compatibility with ARM
 RUN pip3 install --no-cache-dir numpy==1.19.5 scipy==1.5.4
 
+RUN pip3 install --no-cache-dir --prefer-binary pandas==1.1.5
+
+
 # Install scikit-learn with the prefer-binary flag and specific version
 RUN pip3 install --no-cache-dir --prefer-binary scikit-learn==0.24.2
 
