@@ -34,15 +34,17 @@
 #include <thread>
 #include <queue>
 #include <condition_variable>
+#include <csignal>
 
 std::mutex scMutex;
 std::queue<SteeringCommand> scQueue;
 std::condition_variable scCondition;
 float MLSteeringAngle = 0.0f;
+volatile std::sig_atomic_t gRunning = 1;
 
 void processSteeringCommands()
 {
-    while (true)
+    while (gRunning)
     {
         std::unique_lock<std::mutex> lock(scMutex);
         scCondition.wait(lock, []
@@ -62,8 +64,15 @@ void processSteeringCommands()
     }
 }
 
+void signalHandler(int signal)
+{
+    gRunning = 0;
+}
+
 int32_t main(int32_t argc, char **argv)
 {
+    std::signal(SIGINT, signalHandler);
+
     int32_t retCode{1};
 
     float steeringWheelAngle = 0.0f;
@@ -162,7 +171,7 @@ int32_t main(int32_t argc, char **argv)
             int frameCount = 0;
 
             // Endless loop; end the program by pressing Ctrl-C.
-            while (od4.isRunning())
+            while (od4.isRunning() && gRunning)
             {
 
                 frameCount++; // Count the number of frames processed.
@@ -292,7 +301,10 @@ int32_t main(int32_t argc, char **argv)
             }
 
             // Ensure to join the thread before exiting
-            processingThread.join();
+            if (processingThread.joinable())
+            {
+                processingThread.join();
+            }
         }
         retCode = 0;
 
@@ -304,7 +316,10 @@ int32_t main(int32_t argc, char **argv)
     }
 
     // Close the file
-    outputFile.close();
+    if (outputFile.is_open())
+    {
+        outputFile.close();
+    }
 
     return retCode;
 }
