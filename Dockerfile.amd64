@@ -99,7 +99,7 @@ WORKDIR /usr/bin
 
 # Create a bash script to run the python software in the background, then run the compiled C++ software
 RUN echo "#!/bin/bash" > run.sh && \
-    echo "cd /usr/bin/tempML && python3 receiveEnvelopes.py > /dev/null 2>1 &" >> run.sh && \
+    echo "cd /usr/bin/tempML && python3 receiveEnvelopes.py > /dev/null 2>&1 &" >> run.sh && \
     echo "cd /usr/bin && ./main \$@" >> run.sh && \
     chmod +x run.sh
 
